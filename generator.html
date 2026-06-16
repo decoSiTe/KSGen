@@ -173,18 +173,8 @@
     }
 
     .topbar-logo::before {
-      content: "₿";
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent-2), var(--accent), var(--gold));
-      color: #030304;
-      font-family: var(--font-mono);
-      font-size: 17px;
-      font-weight: 800;
-      box-shadow: var(--glow-orange);
+      content: none !important;
+      display: none !important;
     }
 
     .topbar-logo span {
@@ -1250,7 +1240,7 @@
     .brand-mark,
     .bitcoin-mark,
     .logo-orb {
-      background-image: url('Logo.png') !important;
+      background-image: url('logo.png') !important;
       background-size: contain !important;
       background-position: center !important;
       background-repeat: no-repeat !important;
@@ -1260,6 +1250,78 @@
     .bitcoin-mark::before,
     .logo-orb::before {
       content: '' !important;
+    }
+
+  
+    /* Custom header logo */
+    .topbar-logo-img,
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      display: inline-block;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(247,147,26,0.35);
+      box-shadow: 0 0 24px -6px rgba(247,147,26,0.8);
+    }
+
+    .topbar-logo::before {
+      content: none !important;
+      display: none !important;
+    }
+
+  
+    /* Topbar print actions beside Admin · Print Tool */
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+      margin-left: auto;
+    }
+
+    .topbar-print-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar-print-actions .btn {
+      min-height: 40px;
+      padding: 10px 18px;
+      white-space: nowrap;
+    }
+
+    .topbar-print-actions .btn-primary {
+      min-width: 150px;
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        height: auto;
+        min-height: 68px;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
+      .topbar-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .topbar-print-actions {
+        margin-left: auto;
+      }
+
+      .topbar-print-actions .btn {
+        min-height: 38px;
+        padding: 9px 14px;
+        font-size: 11px;
+      }
     }
 
   </style>
@@ -1273,13 +1335,24 @@
 
   <!-- Topbar -->
   <div class="topbar">
-    <div class="topbar-logo" id="generatorTitle"><img src="Logo.png" alt="Logo" class="brand-logo"> <img src="Logo.png" alt="Logo" class="topbar-logo-img"> <span>Price Tag Generator</span></div>
+    <div class="topbar-logo" id="generatorTitle"><img src="logo.png" alt="Logo" class="topbar-logo-img"><span>Price Tag Generator</span></div>
+
+    <div class="topbar-right">
+      <div class="topbar-sub">Admin · Print Tool</div>
+
+      <div class="topbar-print-actions">
+        <button class="btn btn-ghost" onclick="clearAll()">Clear All</button>
+        <button class="btn btn-primary" id="pdfBtn" onclick="window.print()" disabled>
+          🖨 Generate PDF
+        </button>
+      </div>
+    </div>
+
     <div class="topbar-actions">
       <button class="reset-bg-btn" id="resetBgBtn" onclick="resetBackground()" style="display:none;">Reset Template</button>
       <label for="bgUploadInput" class="upload-bg-btn">📤 Upload Template</label>
       <input type="file" id="bgUploadInput" accept="image/*" onchange="handleBackgroundUpload(event)">
     </div>
-    <div class="topbar-sub">Admin · Print Tool</div>
   </div>
   
   <!-- Auto-load banner -->
@@ -1354,12 +1427,7 @@
           </table>
         </div>
 
-        <div class="action-bar">
-          <button class="btn btn-ghost" onclick="clearAll()">Clear All</button>
-          <button class="btn btn-primary" id="pdfBtn" onclick="window.print()" disabled>
-            🖨 Generate PDF
-          </button>
-        </div>
+
 
         <!-- Preview -->
         <div class="preview-section">
@@ -1563,7 +1631,9 @@
       if (req.branch) {
         document.title = req.branch;
         const generatorTitle = document.getElementById('generatorTitle');
-        if (generatorTitle) generatorTitle.textContent = req.branch;
+        if (generatorTitle) {
+          generatorTitle.innerHTML = '<img src="logo.png" alt="Logo" class="topbar-logo-img"><span>' + html(req.branch) + '</span>';
+        }
       }
 
       const requestedItems = parseRequestedItems(req.priceTagList);
