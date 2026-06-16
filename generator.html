@@ -1356,6 +1356,46 @@
       letter-spacing: 0.3px;
     }
 
+  
+    /* Date Requested: keep on the left side beside branch name */
+    .request-banner {
+      justify-content: flex-start !important;
+    }
+
+    .request-banner > div:first-child {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: 14px !important;
+      width: auto !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+    }
+
+    .request-banner #rbDate {
+      margin-left: 0 !important;
+      white-space: nowrap !important;
+      text-align: left !important;
+    }
+
+    @media print {
+      .request-banner {
+        text-align: left !important;
+        justify-content: flex-start !important;
+      }
+
+      .request-banner > div:first-child {
+        justify-content: flex-start !important;
+        gap: 0.28cm !important;
+        width: 100% !important;
+      }
+
+      #rbDate {
+        margin-left: 0 !important;
+        text-align: left !important;
+      }
+    }
+
   </style>
 </head>
 <body>
