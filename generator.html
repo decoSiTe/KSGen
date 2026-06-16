@@ -1156,6 +1156,81 @@
       font-family: var(--font-mono);
       font-size: 11px;
     }
+  
+    /* ── FIX: Items Database scrolling ─────────────────────
+       Keeps the left product list scrollable on GitHub Pages and Apps Script.
+    */
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .layout {
+      min-height: 0;
+    }
+
+    .left-panel {
+      height: calc(100vh - 56px);
+      max-height: calc(100vh - 56px);
+      min-height: 0;
+      overflow: hidden !important;
+    }
+
+    .product-list {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: auto;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      padding-bottom: 28px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(247,147,26,0.75) rgba(255,255,255,0.06);
+    }
+
+    .product-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .product-list::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+    }
+
+    .product-list::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #F7931A, #EA580C);
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(247,147,26,0.35);
+    }
+
+    .product-list::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #FFD600, #F7931A);
+    }
+
+    @media (max-width: 900px) {
+      html,
+      body {
+        overflow: auto;
+      }
+
+      .layout {
+        height: auto;
+        min-height: auto;
+        overflow: visible;
+      }
+
+      .left-panel {
+        height: auto;
+        max-height: none;
+        overflow: visible !important;
+      }
+
+      .product-list {
+        max-height: 55vh;
+        overflow-y: auto !important;
+      }
+    }
+
   </style>
 </head>
 <body>
