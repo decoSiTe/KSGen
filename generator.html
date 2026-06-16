@@ -31,6 +31,46 @@
       console.log('[INIT] Final PRELOAD_ROW:', PRELOAD_ROW);
     })();
   </script>
+  <script>
+    // Apps Script Web App API used by GitHub Pages.
+    // Keep this as your deployed Apps Script /exec URL.
+    const WEB_APP_API_URL = 'https://script.google.com/macros/s/AKfycbzOhGr-W0RPjzbjOeJirxrmbSsq67JSDajSNZRGJldHdQr_pfql0cjGuHwQppnoOM0tmQ/exec';
+
+    function apiCall(action, params = {}) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'jsonpCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+        const query = new URLSearchParams({ action, callback: callbackName, ...params });
+        const script = document.createElement('script');
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error('Request timed out: ' + action));
+        }, 30000);
+
+        function cleanup() {
+          clearTimeout(timer);
+          if (script.parentNode) script.parentNode.removeChild(script);
+          try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+        }
+
+        window[callbackName] = function (response) {
+          cleanup();
+          if (!response || response.success === false) {
+            reject(new Error((response && response.error) || 'API request failed: ' + action));
+            return;
+          }
+          resolve(response.data);
+        };
+
+        script.onerror = function () {
+          cleanup();
+          reject(new Error('Could not connect to Apps Script API: ' + action));
+        };
+
+        script.src = WEB_APP_API_URL + '?' + query.toString();
+        document.body.appendChild(script);
+      });
+    }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Nunito+Sans:wght@400;600;700;800;900&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -406,8 +446,8 @@
       width: 3.34cm;
       height: 1.02cm;
       max-height: 1.02cm;
-      font-size: 0.25cm;
-      line-height: 0.27cm;
+      font-size: 0.2cm;
+      line-height: 0.22cm;
       letter-spacing: 0;
       word-spacing: 0;
       text-align: left;
@@ -430,8 +470,8 @@
       width: 3.34cm;
       height: 1.02cm;
       max-height: 1.02cm;
-      font-size: 0.25cm;
-      line-height: 0.27cm;
+      font-size: 0.2cm;
+      line-height: 0.22cm;
       letter-spacing: 0;
       word-spacing: 0;
       text-align: right;
@@ -446,8 +486,8 @@
       top: 3.50cm;
       left: 0.45cm;
       right: 0.45cm;
-      height: 0.30cm;
-      max-height: 0.30cm;
+      height: 0.34cm;
+      max-height: 0.34cm;
       text-align: center;
       font-size: 0.13cm;
       font-weight: 800;
@@ -459,6 +499,7 @@
     .allergens-ar {
       display: block;
       direction: rtl;
+      unicode-bidi: plaintext;
       font-size: 0.14cm;
       font-family: Arial, Tahoma, 'Noto Sans Arabic', sans-serif;
       font-weight: 600;
@@ -953,8 +994,8 @@
 
       document.getElementById('searchInput').addEventListener('input', renderProductList);
 
-      google.script.run
-        .withSuccessHandler(data => {
+      apiCall('getProducts')
+        .then(data => {
           allProducts = (data || []).map(normalizeProduct).filter(p => p.name);
           renderProductList();
           hideLoadingOverlay();
@@ -962,28 +1003,26 @@
           console.log('[BOOT] PRELOAD_ROW:', PRELOAD_ROW);
 
           if (PRELOAD_ROW && PRELOAD_ROW > 1) {
-            google.script.run
-              .withSuccessHandler(req => {
+            return apiCall('getRequestData', { row: PRELOAD_ROW })
+              .then(req => {
                 preloadRequest(req);
                 hideLoadingOverlay();
               })
-              .withFailureHandler(err => {
+              .catch(err => {
                 console.error('[ERROR] Failed to load request:', err);
                 showAutoLoadBanner('✗ Failed to load request row ' + PRELOAD_ROW + ': ' + (err.message || err), 'error');
                 hideLoadingOverlay();
-              })
-              .getRequestData(PRELOAD_ROW);
-          } else {
-            hideLoadingOverlay();
+              });
           }
+
+          hideLoadingOverlay();
         })
-        .withFailureHandler(err => {
+        .catch(err => {
           document.getElementById('productList').innerHTML =
             `<div style="text-align:center;padding:32px;color:var(--muted);font-size:12px;">⚠ Failed to load: ${err.message}</div>`;
           showAutoLoadBanner('✗ Failed to load product database: ' + (err.message || err), 'error');
           hideLoadingOverlay();
-        })
-        .getProducts();
+        });
     });
 
     // ── Pre-load items from a request row ─────────────────
@@ -1280,11 +1319,11 @@
     }
 
     function descSize(text) {
-      return '0.25cm';
+      return '0.2cm';
     }
 
     function descArSize(text) {
-      return '0.25cm';
+      return '0.2cm';
     }
 
     function priceSize(price) {
@@ -1331,7 +1370,7 @@
 
           <div class="allergens">
             ${allergensEn ? `ALLERGENS: ${html(allergensEn)}` : ''}
-            ${allergensAr ? `<br><span class="allergens-ar">${html(allergensAr)}</span>` : ''}
+            ${allergensAr ? `<br><span class="allergens-ar">مسببات الحساسية: ${html(allergensAr)}</span>` : ''}
           </div>
 
           <div class="bottom-bar">
@@ -1362,6 +1401,8 @@
         /* Fixed sizes requested:
            item name = 0.5cm, description = 0.3cm, price = 1cm */
         fitTextToBox(tag.querySelector('.arabic-title'), 12);
+        fitTextToBox(tag.querySelector('.desc-en'), 5);
+        fitTextToBox(tag.querySelector('.desc-ar'), 5);
         fitTextToBox(tag.querySelector('.allergens'), 4.5);
         fitTextToBox(tag.querySelector('.net-wt'), 8);
         fitTextToBox(tag.querySelector('.portions'), 6.5);
@@ -1390,7 +1431,14 @@
         btn.textContent = '⏳ Saving...';
         btn.disabled = true;
         
-        // Save to Google Drive
+        // Save to Google Drive. This works only inside Apps Script, not GitHub Pages.
+        if (!window.google || !google.script || !google.script.run) {
+          console.warn('Background template upload is disabled on GitHub Pages.');
+          btn.textContent = originalText;
+          btn.disabled = false;
+          return;
+        }
+
         google.script.run
           .withSuccessHandler(function(result) {
             if (result.success) {
@@ -1425,7 +1473,14 @@
       btn.textContent = 'Deleting...';
       btn.disabled = true;
       
-      // Delete from Google Drive
+      // Delete from Google Drive. This works only inside Apps Script, not GitHub Pages.
+      if (!window.google || !google.script || !google.script.run) {
+        console.warn('Background template delete is disabled on GitHub Pages.');
+        btn.disabled = false;
+        btn.textContent = 'Reset Template';
+        return;
+      }
+
       google.script.run
         .withSuccessHandler(function(result) {
           if (result.success) {
