@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Price Tag Generator</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="shortcut icon" type="image/png" href="favicon.png">
   <script>
     // Row number passed by Apps Script doGet: ?page=generator&row=132
     // This makes the generator auto-load the selected request when opened from the sidebar.
@@ -1231,6 +1233,35 @@
       }
     }
 
+  
+    /* Brand logo from GitHub repository */
+    .brand-logo,
+    .topbar-logo-img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(247,147,26,0.35);
+      box-shadow: 0 0 24px -6px rgba(247,147,26,0.8);
+      flex-shrink: 0;
+    }
+
+    .brand-mark,
+    .bitcoin-mark,
+    .logo-orb {
+      background-image: url('Logo.png') !important;
+      background-size: contain !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    .brand-mark::before,
+    .bitcoin-mark::before,
+    .logo-orb::before {
+      content: '' !important;
+    }
+
   </style>
 </head>
 <body>
@@ -1242,7 +1273,7 @@
 
   <!-- Topbar -->
   <div class="topbar">
-    <div class="topbar-logo" id="generatorTitle">Price<span>Tag</span> Generator</div>
+    <div class="topbar-logo" id="generatorTitle"><img src="Logo.png" alt="Logo" class="brand-logo"> <img src="Logo.png" alt="Logo" class="topbar-logo-img"> <span>Price Tag Generator</span></div>
     <div class="topbar-actions">
       <button class="reset-bg-btn" id="resetBgBtn" onclick="resetBackground()" style="display:none;">Reset Template</button>
       <label for="bgUploadInput" class="upload-bg-btn">📤 Upload Template</label>
@@ -1279,9 +1310,9 @@
 
       <div class="filters" id="filterBar">
         <button class="filter-btn active" data-cat="ALL">ALL</button>
-        <button class="filter-btn" data-cat="CAKE">CAKES</button>
+        <button class="filter-btn" data-cat="CAKES">CAKES</button>
         <button class="filter-btn" data-cat="BAKERY">BAKERY</button>
-        <button class="filter-btn" data-cat="PASTRY">PASTRIES</button>
+        <button class="filter-btn" data-cat="PASTRIES">PASTRIES</button>
         <button class="filter-btn" data-cat="SSMM">SSMM</button>
       </div>
 
