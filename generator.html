@@ -1003,14 +1003,17 @@
       }
 
       .request-banner > div:first-child {
-        display: block !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.35cm !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
+        overflow: hidden !important;
       }
 
       .request-banner strong {
-        display: block !important;
+        display: inline-block !important;
         color: #f4c542 !important;
         font-size: 11px !important;
         font-weight: 800 !important;
@@ -1020,9 +1023,20 @@
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
+        max-width: 8cm !important;
       }
 
-      #rbDate,
+      #rbDate {
+        display: inline-block !important;
+        color: #e8e6e0 !important;
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.2px !important;
+        line-height: 1.1 !important;
+        margin-left: 0.35cm !important;
+        white-space: nowrap !important;
+      }
+
       #rbItems {
         display: none !important;
       }
@@ -1324,6 +1338,24 @@
       }
     }
 
+  
+    /* Request banner branch + date on one line */
+    .request-banner > div:first-child {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .request-banner #rbDate {
+      color: var(--muted);
+      margin-left: 0;
+      white-space: nowrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.3px;
+    }
+
   </style>
 </head>
 <body>
@@ -1470,6 +1502,28 @@
       banner.style.background = styles[0];
       banner.style.borderBottom = '2px solid ' + styles[1];
       banner.innerHTML = '<div style="color:' + styles[2] + ';font-size:13px;font-weight:600;">' + message + '</div>';
+    }
+
+
+    function formatDateOnly(value) {
+      if (!value) return '';
+      const text = String(value).trim();
+
+      // Handles values like: Mon Jun 08 2026 00:00:00 GMT+0400 (Gulf Standard Time)
+      const parsed = new Date(text);
+      if (!isNaN(parsed.getTime())) {
+        return parsed.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        });
+      }
+
+      // Handles values like: 2026-06-08 or 6/8/2026
+      return text
+        .replace(/\s+00:00:00.*$/i, '')
+        .replace(/\s+GMT.*$/i, '')
+        .trim();
     }
 
     function normalizeProduct(p) {
@@ -1621,7 +1675,7 @@
       const itemsEl = document.getElementById('rbItems');
 
       if (rbBranch) rbBranch.textContent = req.branch || '—';
-      if (rbDate) rbDate.textContent = req.dateRequested ? 'Requested: ' + req.dateRequested : '';
+      if (rbDate) rbDate.textContent = req.dateRequested ? 'Date Requested: ' + formatDateOnly(req.dateRequested) : '';
       if (itemsEl) {
         itemsEl.textContent = req.priceTagList || '';
         itemsEl.title = req.priceTagList || '';
