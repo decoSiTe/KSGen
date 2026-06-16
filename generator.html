@@ -1357,42 +1357,51 @@
     }
 
   
-    /* Date Requested: keep on the left side beside branch name */
+    /* Date Requested: right side of the header line */
     .request-banner {
-      justify-content: flex-start !important;
+      justify-content: space-between !important;
     }
 
     .request-banner > div:first-child {
       display: flex !important;
       align-items: center !important;
-      justify-content: flex-start !important;
+      justify-content: space-between !important;
       gap: 14px !important;
-      width: auto !important;
-      max-width: 100% !important;
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+
+    .request-banner #rbBranch {
+      flex: 0 1 auto !important;
       min-width: 0 !important;
     }
 
     .request-banner #rbDate {
-      margin-left: 0 !important;
+      margin-left: auto !important;
       white-space: nowrap !important;
-      text-align: left !important;
+      text-align: right !important;
+    }
+
+    .request-banner .requested-items {
+      display: none !important;
     }
 
     @media print {
       .request-banner {
         text-align: left !important;
-        justify-content: flex-start !important;
+        justify-content: space-between !important;
       }
 
       .request-banner > div:first-child {
-        justify-content: flex-start !important;
-        gap: 0.28cm !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
         width: 100% !important;
       }
 
       #rbDate {
-        margin-left: 0 !important;
-        text-align: left !important;
+        margin-left: auto !important;
+        text-align: right !important;
       }
     }
 
