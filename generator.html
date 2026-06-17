@@ -1506,7 +1506,7 @@
         <button class="filter-btn" data-cat="BAKERY">BAKERY</button>
         <button class="filter-btn" data-cat="PASTRY">PASTRIES</button>
         <button class="filter-btn" data-cat="SSMM">SSMM</button>
-        <button class="filter-btn" data-cat="CHOCOLATES">CHOCOLATES</button>
+        <button class="filter-btn" data-cat="CHOCOLATES">CHOCO</button>
       </div>
 
       <div class="product-list" id="productList">
@@ -1959,6 +1959,26 @@
         .replace(/'/g, '&#039;');
     }
 
+
+    function isSheetErrorValue(value) {
+      const text = String(value || '').trim().toUpperCase();
+      return !text ||
+        text === '#VALUE!' ||
+        text === '#N/A' ||
+        text === '#REF!' ||
+        text === '#DIV/0!' ||
+        text === '#NAME?' ||
+        text === '#NUM!' ||
+        text === '#NULL!' ||
+        text === 'N/A' ||
+        text === 'NA' ||
+        text === '-';
+    }
+
+    function cleanDisplayValue(value) {
+      return isSheetErrorValue(value) ? '' : String(value || '').trim();
+    }
+
     function normalizePrice(value) {
       const raw = String(value || '').trim();
       const numeric = parseFloat(raw.replace(/[^0-9.]/g, ''));
@@ -1973,18 +1993,21 @@
     }
 
     function normalizeAllergensEN(value) {
+      if (isSheetErrorValue(value)) return '';
       return String(value || '')
         .replace(/^\s*allergens\s*:\s*/i, '')
         .trim();
     }
 
     function normalizeAllergensAR(value) {
+      if (isSheetErrorValue(value)) return '';
       return String(value || '')
         .replace(/^\s*(?:مسببات|مسبب)\s+الحساسية\s*[:：]?\s*/i, '')
         .trim();
     }
 
     function autoAllergensAR(value) {
+      if (isSheetErrorValue(value)) return '';
       const raw = String(value || '').toLowerCase();
       if (!raw) return '';
 
@@ -2056,10 +2079,10 @@
     function buildTagHTML(p, idx) {
       const nameEn = p.name || '';
       const nameAr = p.arabicName || '';
-      const descEn = p.descriptionEN || p.description || '';
-      const descAr = p.descriptionAR || '';
-      const allergensEn = normalizeAllergensEN(p.allergensEN || '');
-      const allergensAr = normalizeAllergensAR(p.allergensAR || '') || autoAllergensAR(allergensEn);
+      const descEn = cleanDisplayValue(p.descriptionEN || p.description || '');
+      const descAr = cleanDisplayValue(p.descriptionAR || '');
+      const allergensEn = normalizeAllergensEN(cleanDisplayValue(p.allergensEN || ''));
+      const allergensAr = normalizeAllergensAR(cleanDisplayValue(p.allergensAR || '')) || autoAllergensAR(allergensEn);
       const netWt = normalizeNetWeight(p.netWeightEN || p.netWeight || '');
       const price = normalizePrice(p.price);
       const portions = formatPortions(p);
