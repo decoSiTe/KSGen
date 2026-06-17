@@ -104,6 +104,41 @@
 
     html { background: var(--bg); }
 
+
+    /* Price tag font setup
+       Works when Futura PT fonts are installed on the device.
+       For GitHub Pages on all devices, upload licensed font files and update the url() paths.
+    */
+    @font-face {
+      font-family: 'Futura PT Extra Bold';
+      src: local('Futura PT Extra Bold'),
+           local('FuturaPT-ExtraBold'),
+           local('FuturaPTExtraBold');
+      font-weight: 800 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'Futura PT Demi';
+      src: local('Futura PT Demi'),
+           local('FuturaPT-Demi'),
+           local('FuturaPTDemi');
+      font-weight: 600 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'Futura PT Bold';
+      src: local('Futura PT Bold'),
+           local('FuturaPT-Bold'),
+           local('FuturaPTBold');
+      font-weight: 700 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
     body {
       position: relative;
       font-family: var(--font-body);
@@ -361,9 +396,9 @@
     .product-card:hover::after { opacity: 1; }
 
     .pc-name {
-      font-family: var(--font-heading);
+      font-family: 'Futura PT Extra Bold', 'Inter', Arial, Helvetica, sans-serif;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 900;
       color: var(--text);
       margin-bottom: 2px;
       letter-spacing: -0.01em;
@@ -539,8 +574,8 @@
     tbody td { padding: 12px; vertical-align: middle; }
 
     .td-name {
-      font-family: var(--font-heading);
-      font-weight: 700;
+      font-family: 'Futura PT Extra Bold', 'Inter', Arial, Helvetica, sans-serif;
+      font-weight: 900;
       color: var(--text);
       font-size: 12px;
     }
@@ -795,7 +830,7 @@
       display: block;
       padding: 0.04cm 0.10cm 0 0.10cm;
       text-align: center;
-      font-family: 'Anton', 'Arial Black', Arial, Helvetica, sans-serif;
+      font-family: 'Futura PT Extra Bold', 'Anton', 'Arial Black', Arial, Helvetica, sans-serif;
       font-size: 0.5cm;
       font-weight: 900;
       letter-spacing: 0.04cm;
@@ -818,7 +853,7 @@
       color: #874812;
       direction: rtl;
       font-size: 0.40cm;
-      font-weight: 500;
+      font-weight: 400;
       line-height: 0.38cm;
       font-family: Arial, Tahoma, 'Noto Sans Arabic', sans-serif;
       overflow: hidden;
@@ -875,10 +910,11 @@
       max-height: 0.34cm;
       text-align: center;
       font-size: 0.13cm;
-      font-weight: 800;
+      font-weight: 700;
       line-height: 0.14cm;
       color: #874812;
       overflow: hidden;
+      font-family: 'Futura PT Demi', Arial, Helvetica, sans-serif;
     }
 
     .allergens-ar {
@@ -887,7 +923,7 @@
       unicode-bidi: plaintext;
       font-size: 0.14cm;
       font-family: Arial, Tahoma, 'Noto Sans Arabic', sans-serif;
-      font-weight: 600;
+      font-weight: 400;
       line-height: 0.15cm;
       margin-top: 0.02cm;
     }
@@ -941,6 +977,7 @@
       letter-spacing: 0.02cm;
       white-space: nowrap;
       color: #f5e8c9;
+      font-family: 'Futura PT Bold', 'Arial Black', Arial, Helvetica, sans-serif;
     }
 
     .aed {
@@ -951,6 +988,7 @@
       line-height: 0.40cm;
       font-weight: 900;
       color: #f5e8c9;
+      font-family: 'Futura PT Bold', 'Arial Black', Arial, Helvetica, sans-serif;
     }
 
     /* ── Loading ── */
@@ -1464,9 +1502,9 @@
 
       <div class="filters" id="filterBar">
         <button class="filter-btn active" data-cat="ALL">ALL</button>
-        <button class="filter-btn" data-cat="CAKES">CAKES</button>
+        <button class="filter-btn" data-cat="CAKE">CAKES</button>
         <button class="filter-btn" data-cat="BAKERY">BAKERY</button>
-        <button class="filter-btn" data-cat="PASTRIES">PASTRIES</button>
+        <button class="filter-btn" data-cat="PASTRY">PASTRIES</button>
         <button class="filter-btn" data-cat="SSMM">SSMM</button>
       </div>
 
