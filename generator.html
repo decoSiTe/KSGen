@@ -668,6 +668,116 @@
       box-shadow: 0 0 22px -8px rgba(234, 88, 12, 0.72);
     }
 
+
+    .action-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .edit-btn {
+      padding: 6px 12px;
+      background: rgba(255, 214, 0, 0.08);
+      border: 1px solid rgba(255, 214, 0, 0.45);
+      border-radius: 999px;
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.16s, color 0.16s, box-shadow 0.16s;
+    }
+
+    .edit-btn:hover {
+      background: var(--gold);
+      color: #030304;
+      box-shadow: 0 0 22px -8px rgba(255, 214, 0, 0.72);
+    }
+
+    .admin-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(14px);
+    }
+
+    .admin-modal-overlay.show { display: flex; }
+
+    .admin-modal-box {
+      width: min(420px, 100%);
+      border: 1px solid rgba(247, 147, 26, 0.32);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(15, 17, 21, 0.98), rgba(3, 3, 4, 0.96));
+      box-shadow: 0 0 48px -18px rgba(247, 147, 26, 0.82);
+      padding: 22px;
+      color: var(--text);
+    }
+
+    .admin-modal-title {
+      font-family: var(--font-heading);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .admin-modal-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .admin-field-label {
+      display: block;
+      margin: 12px 0 6px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .admin-input {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.45);
+      color: var(--text);
+      font-family: var(--font-body);
+      outline: none;
+    }
+
+    .admin-input:focus {
+      border-color: rgba(247, 147, 26, 0.72);
+      box-shadow: 0 0 22px -12px rgba(247, 147, 26, 0.80);
+    }
+
+    .admin-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .admin-error {
+      display: none;
+      margin-top: 12px;
+      color: #fb923c;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
     /* ── Empty cart ── */
     .cart-empty {
       padding: 42px;
@@ -909,7 +1019,7 @@
       height: 0.44cm;
       max-height: 0.44cm;
       text-align: center;
-      font-size: 0.20cm;
+      font-size: 0.15cm;
       font-weight: 700;
       line-height: 0.16cm;
       color: #874812;
@@ -921,7 +1031,7 @@
       display: block;
       direction: rtl;
       unicode-bidi: plaintext;
-      font-size: 0.21cm;
+      font-size: 0.16cm;
       font-family: Arial, Tahoma, 'Noto Sans Arabic', sans-serif;
       font-weight: 700;
       line-height: 0.17cm;
@@ -1486,6 +1596,46 @@
     <div id="rbItems" class="requested-items"></div>
   </div>
 
+
+  <!-- Admin login modal for protected price editing -->
+  <div id="adminLoginModal" class="admin-modal-overlay" aria-hidden="true">
+    <div class="admin-modal-box">
+      <div class="admin-modal-title">Admin Login Required</div>
+      <div class="admin-modal-subtitle">Login as admin to edit the item price before printing.</div>
+
+      <label class="admin-field-label" for="adminUsername">Username</label>
+      <input class="admin-input" id="adminUsername" type="text" autocomplete="username">
+
+      <label class="admin-field-label" for="adminPassword">Password</label>
+      <input class="admin-input" id="adminPassword" type="password" autocomplete="current-password">
+
+      <div class="admin-error" id="adminLoginError"></div>
+
+      <div class="admin-modal-actions">
+        <button class="btn btn-ghost" type="button" onclick="closeAdminLoginModal()">Cancel</button>
+        <button class="btn btn-primary" type="button" id="adminLoginBtn" onclick="submitAdminLogin()">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Price edit modal -->
+  <div id="priceEditModal" class="admin-modal-overlay" aria-hidden="true">
+    <div class="admin-modal-box">
+      <div class="admin-modal-title">Edit Price</div>
+      <div class="admin-modal-subtitle" id="editPriceItemName">—</div>
+
+      <label class="admin-field-label" for="editPriceValue">New Price</label>
+      <input class="admin-input" id="editPriceValue" type="number" min="0" step="0.01" inputmode="decimal">
+
+      <div class="admin-error" id="editPriceError"></div>
+
+      <div class="admin-modal-actions">
+        <button class="btn btn-ghost" type="button" onclick="closePriceEditModal()">Cancel</button>
+        <button class="btn btn-primary" type="button" onclick="saveEditedPrice()">Save Price</button>
+      </div>
+    </div>
+  </div>
+
   <div class="layout">
 
     <!-- LEFT: Product Database -->
@@ -1565,6 +1715,9 @@
     let allProducts  = [];
     let cart         = [];
     let activeFilter = 'ALL';
+    let adminLoggedIn = sessionStorage.getItem('priceTagAdminLoggedIn') === '1';
+    let pendingEditKey = '';
+    let activeEditKey = '';
 
     // ── Helpers ───────────────────────────────────────────
     function hideLoadingOverlay() {
@@ -1651,6 +1804,11 @@
         p.netWeightEN || p.netWeight || '',
         p.category || ''
       ].join('|');
+    }
+
+
+    function cloneProductForCart(product) {
+      return Object.assign({}, product || {});
     }
 
     function normalizePriceText(value) {
@@ -1918,7 +2076,7 @@
           const matchKey = productKeyOf(match);
           const existing = cart.find(c => productKeyOf(c.product) === matchKey);
           if (existing) existing.qty += item.qty;
-          else cart.push({ product: match, qty: item.qty });
+          else cart.push({ product: cloneProductForCart(match), qty: item.qty });
 
           addedCount++;
           totalTags += item.qty;
@@ -1993,7 +2151,7 @@
       const p = allProducts[idx];
       const key = productKeyOf(p);
       if (cart.some(c => productKeyOf(c.product) === key)) return;
-      cart.push({ product: p, qty: 1 });
+      cart.push({ product: cloneProductForCart(p), qty: 1 });
       renderAll();
     }
 
@@ -2061,7 +2219,10 @@
             </div>
           </td>
           <td>
-            <button class="remove-btn" onclick="removeFromCart('${key}')">Remove</button>
+            <div class="action-cell">
+              <button class="edit-btn" onclick="openEditPrice('${key}')">Edit</button>
+              <button class="remove-btn" onclick="removeFromCart('${key}')">Remove</button>
+            </div>
           </td>
         </tr>`;
       }).join('');
@@ -2289,6 +2450,166 @@
     }
 
         function esc(s) { return (s || '').replace(/'/g, "\\'"); }
+
+
+    // ── Admin-protected price editing ─────────────────────
+    function openEditPrice(key) {
+      pendingEditKey = key;
+
+      if (!adminLoggedIn) {
+        openAdminLoginModal();
+        return;
+      }
+
+      showPriceEditModal(key);
+    }
+
+    function openAdminLoginModal() {
+      const modal = document.getElementById('adminLoginModal');
+      const err = document.getElementById('adminLoginError');
+      if (err) { err.style.display = 'none'; err.textContent = ''; }
+      if (modal) {
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+      setTimeout(() => {
+        const username = document.getElementById('adminUsername');
+        if (username) username.focus();
+      }, 50);
+    }
+
+    function closeAdminLoginModal() {
+      const modal = document.getElementById('adminLoginModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+      pendingEditKey = '';
+    }
+
+    function showAdminError(message) {
+      const err = document.getElementById('adminLoginError');
+      if (!err) return;
+      err.textContent = message;
+      err.style.display = 'block';
+    }
+
+    function submitAdminLogin() {
+      const username = document.getElementById('adminUsername').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      const btn = document.getElementById('adminLoginBtn');
+
+      if (!username || !password) {
+        showAdminError('Please enter admin username and password.');
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Checking...';
+      }
+
+      apiCall('verifyAdminLogin', { username, password })
+        .then(result => {
+          if (!result || !result.authenticated) {
+            showAdminError((result && result.error) || 'Invalid admin username or password.');
+            return;
+          }
+
+          adminLoggedIn = true;
+          sessionStorage.setItem('priceTagAdminLoggedIn', '1');
+
+          const modal = document.getElementById('adminLoginModal');
+          if (modal) {
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+          }
+
+          const keyToEdit = pendingEditKey;
+          pendingEditKey = '';
+          if (keyToEdit) showPriceEditModal(keyToEdit);
+        })
+        .catch(err => {
+          showAdminError(err.message || 'Admin login failed. Please try again.');
+        })
+        .finally(() => {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Login';
+          }
+        });
+    }
+
+    function showPriceEditModal(key) {
+      const item = cart.find(c => productKeyOf(c.product) === key);
+      if (!item) return;
+
+      activeEditKey = key;
+      const modal = document.getElementById('priceEditModal');
+      const name = document.getElementById('editPriceItemName');
+      const input = document.getElementById('editPriceValue');
+      const err = document.getElementById('editPriceError');
+
+      if (name) name.textContent = item.product.name || 'Selected item';
+      if (input) input.value = normalizePrice(item.product.price || '0');
+      if (err) { err.style.display = 'none'; err.textContent = ''; }
+
+      if (modal) {
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+
+      setTimeout(() => {
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      }, 50);
+    }
+
+    function closePriceEditModal() {
+      const modal = document.getElementById('priceEditModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+      activeEditKey = '';
+    }
+
+    function saveEditedPrice() {
+      const input = document.getElementById('editPriceValue');
+      const err = document.getElementById('editPriceError');
+      const newPrice = input ? input.value.trim() : '';
+      const numeric = parseFloat(newPrice);
+
+      if (!newPrice || isNaN(numeric) || numeric < 0) {
+        if (err) {
+          err.textContent = 'Please enter a valid price.';
+          err.style.display = 'block';
+        }
+        return;
+      }
+
+      const item = cart.find(c => productKeyOf(c.product) === activeEditKey);
+      if (!item) return;
+
+      item.product.price = String(numeric).replace(/\.0$/, '');
+      closePriceEditModal();
+      renderAll();
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeAdminLoginModal();
+        closePriceEditModal();
+      }
+      if (event.key === 'Enter') {
+        const adminModal = document.getElementById('adminLoginModal');
+        const priceModal = document.getElementById('priceEditModal');
+        if (adminModal && adminModal.classList.contains('show')) submitAdminLogin();
+        else if (priceModal && priceModal.classList.contains('show')) saveEditedPrice();
+      }
+    });
 
     // ── Background Template Upload (Google Drive) ──────────
     let customBackground = null;
