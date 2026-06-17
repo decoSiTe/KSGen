@@ -1614,9 +1614,14 @@
         .trim();
     }
 
-    function normalizeProduct(p) {
+    function normalizeProduct(p, index) {
       p = p || {};
+      const rowNumber = (p.rowNumber || '').toString().trim();
+      const productKey = (p.productKey || (rowNumber ? 'ROW_' + rowNumber : 'IDX_' + index)).toString().trim();
+
       return {
+        productKey:    productKey,
+        rowNumber:     rowNumber,
         name:          (p.name || '').toString().trim(),
         arabicName:    (p.arabicName || '').toString().trim(),
         description:   (p.description || p.descriptionEN || '').toString().trim(),
@@ -1636,6 +1641,32 @@
       };
     }
 
+    function productKeyOf(p) {
+      if (!p) return '';
+      if (p.productKey) return String(p.productKey);
+      if (p.rowNumber) return 'ROW_' + String(p.rowNumber);
+      return [
+        p.name || '',
+        p.price || '',
+        p.netWeightEN || p.netWeight || '',
+        p.category || ''
+      ].join('|');
+    }
+
+    function normalizePriceText(value) {
+      const text = String(value || '').trim();
+      const numeric = parseFloat(text.replace(/[^0-9.]/g, ''));
+      return isNaN(numeric) ? text.toLowerCase() : String(numeric);
+    }
+
+    function normalizeWeightText(value) {
+      return String(value || '')
+        .toLowerCase()
+        .replace(/net\s*w(?:ei)?ght\.?\s*/i, '')
+        .replace(/\s+/g, '')
+        .trim();
+    }
+
     function cleanName(value) {
       return (value || '')
         .toString()
@@ -1647,12 +1678,38 @@
         .trim();
     }
 
+    function parseSelectedProductsFromRequest(req) {
+      let selected = req && (req.selectedProducts || req.selectedProductsJson || req.selectedItems);
+
+      if (typeof selected === 'string') {
+        try { selected = JSON.parse(selected); }
+        catch (e) { selected = []; }
+      }
+
+      if (!Array.isArray(selected)) return [];
+
+      return selected.map(item => {
+        item = item || {};
+        const name = (item.name || '').toString().trim();
+        return {
+          raw: name,
+          productKey: (item.productKey || '').toString().trim(),
+          rowNumber: (item.rowNumber || '').toString().trim(),
+          name: name,
+          clean: cleanName(name),
+          price: (item.price || '').toString().trim(),
+          netWeight: (item.netWeightEN || item.netWeight || '').toString().trim(),
+          category: (item.category || '').toString().trim().toUpperCase(),
+          qty: Math.max(1, parseInt(item.qty, 10) || 1)
+        };
+      }).filter(item => item.name || item.productKey || item.rowNumber);
+    }
+
     function parseRequestedItems(priceTagList) {
       return (priceTagList || '')
         .split(/\r?\n/)
         .map(line => {
-          let text = line.replace(/^\s*\d+\s*[.)-]?\s*/, '').trim();
-          text = text.replace(/\s*[—-]\s*AED\s*[\d.]+\s*$/i, '').trim();
+          let text = String(line || '').replace(/^\s*\d+\s*[.)-]?\s*/, '').trim();
 
           let qty = 1;
           const qtyMatch = text.match(/\((\d+)\s*(?:pcs?|pc|pieces?|tags?)\)\s*$/i) ||
@@ -1662,24 +1719,93 @@
             text = text.replace(qtyMatch[0], '').trim();
           }
 
-          return { raw: line, name: text, clean: cleanName(text), qty };
+          const keyMatch = text.match(/\[\[KEY:([^\]]+)\]\]\s*$/i);
+          const productKey = keyMatch ? keyMatch[1].trim() : '';
+          if (keyMatch) text = text.replace(keyMatch[0], '').trim();
+
+          const rowMatch = text.match(/\bRow\s*(\d+)\b/i);
+          const rowNumber = rowMatch ? rowMatch[1].trim() : '';
+
+          const priceMatch = text.match(/\bAED\s*([0-9]+(?:\.[0-9]+)?)\b/i) ||
+                             text.match(/\b([0-9]+(?:\.[0-9]+)?)\s*AED\b/i);
+          const price = priceMatch ? priceMatch[1].trim() : '';
+
+          let name = text
+            .replace(/\s*[—-]\s*Row\s*\d+\s*$/i, '')
+            .replace(/\s*[—-]\s*AED\s*[0-9]+(?:\.[0-9]+)?\s*/ig, ' — ')
+            .replace(/\s*[—-]\s*[0-9]+(?:\.[0-9]+)?\s*AED\s*/ig, ' — ')
+            .split(/\s+—\s+/)[0]
+            .trim();
+
+          const parts = text.split(/\s+—\s+/).map(part => part.trim()).filter(Boolean);
+          const netWeight = parts.find(part =>
+            /\b(?:kg|g|gram|grams|ml|ltr|liter|litre)\b/i.test(part) &&
+            !/\bAED\b/i.test(part)
+          ) || '';
+
+          return {
+            raw: line,
+            productKey: productKey,
+            rowNumber: rowNumber,
+            name: name,
+            clean: cleanName(name),
+            price: price,
+            netWeight: netWeight,
+            qty: qty
+          };
         })
-        .filter(item => item.name && item.clean);
+        .filter(item => (item.name && item.clean) || item.productKey || item.rowNumber);
+    }
+
+    function getRequestedItems(req) {
+      const exactItems = parseSelectedProductsFromRequest(req);
+      return exactItems.length ? exactItems : parseRequestedItems(req && req.priceTagList);
     }
 
     function findBestProductMatch(requestItem) {
+      if (!requestItem) return null;
+
+      if (requestItem.productKey) {
+        const byKey = allProducts.find(product => productKeyOf(product) === requestItem.productKey);
+        if (byKey) return byKey;
+      }
+
+      if (requestItem.rowNumber) {
+        const byRow = allProducts.find(product => String(product.rowNumber || '') === String(requestItem.rowNumber));
+        if (byRow) return byRow;
+      }
+
+      const requestClean = cleanName(requestItem.name);
+      const requestPrice = normalizePriceText(requestItem.price);
+      const requestWeight = normalizeWeightText(requestItem.netWeight);
+
+      if (requestClean && requestPrice) {
+        const byNamePriceWeight = allProducts.find(product =>
+          cleanName(product.name) === requestClean &&
+          normalizePriceText(product.price) === requestPrice &&
+          (!requestWeight || normalizeWeightText(product.netWeightEN || product.netWeight) === requestWeight)
+        );
+        if (byNamePriceWeight) return byNamePriceWeight;
+
+        const byNamePrice = allProducts.find(product =>
+          cleanName(product.name) === requestClean &&
+          normalizePriceText(product.price) === requestPrice
+        );
+        if (byNamePrice) return byNamePrice;
+      }
+
       let best = null;
       let bestScore = 0;
-      const requestWords = requestItem.clean.split(' ').filter(w => w.length > 1);
+      const requestWords = requestClean.split(' ').filter(w => w.length > 1);
 
       allProducts.forEach(product => {
         const productClean = cleanName(product.name);
         if (!productClean) return;
 
         let score = 0;
-        if (productClean === requestItem.clean) score = 100;
-        else if (productClean.includes(requestItem.clean)) score = 90;
-        else if (requestItem.clean.includes(productClean)) score = 85;
+        if (productClean === requestClean) score = 100;
+        else if (productClean.includes(requestClean)) score = 90;
+        else if (requestClean.includes(productClean)) score = 85;
         else {
           const productWords = productClean.split(' ').filter(w => w.length > 1);
           const matchedWords = requestWords.filter(rw => productWords.some(pw => pw === rw || pw.includes(rw) || rw.includes(pw)));
@@ -1778,7 +1904,7 @@
         }
       }
 
-      const requestedItems = parseRequestedItems(req.priceTagList);
+      const requestedItems = getRequestedItems(req);
       console.log('[PRELOAD] Requested items:', requestedItems);
 
       cart = [];
@@ -1789,15 +1915,16 @@
       requestedItems.forEach(item => {
         const match = findBestProductMatch(item);
         if (match) {
-          const existing = cart.find(c => c.product.name === match.name);
+          const matchKey = productKeyOf(match);
+          const existing = cart.find(c => productKeyOf(c.product) === matchKey);
           if (existing) existing.qty += item.qty;
           else cart.push({ product: match, qty: item.qty });
 
           addedCount++;
           totalTags += item.qty;
-          console.log('[PRELOAD] Auto-added:', match.name, 'qty:', item.qty, 'from:', item.name);
+          console.log('[PRELOAD] Auto-added:', match.name, 'qty:', item.qty, 'from:', item.name || item.productKey || item.rowNumber);
         } else {
-          missing.push(item.name);
+          missing.push(item.name || item.productKey || item.rowNumber);
           console.warn('[PRELOAD] Could not match:', item.name);
         }
       });
@@ -1843,7 +1970,7 @@
       }
 
       list.innerHTML = filtered.map((p, i) => {
-        const inCart = cart.some(c => c.product.name === p.name);
+        const inCart = cart.some(c => productKeyOf(c.product) === productKeyOf(p));
         const idx    = allProducts.indexOf(p);
         return `
           <div class="product-card" style="animation:fadeIn 0.2s ease ${i*0.025}s both">
@@ -1864,24 +1991,25 @@
     // ── Cart ──────────────────────────────────────────────
     function addToCart(idx) {
       const p = allProducts[idx];
-      if (cart.some(c => c.product.name === p.name)) return;
+      const key = productKeyOf(p);
+      if (cart.some(c => productKeyOf(c.product) === key)) return;
       cart.push({ product: p, qty: 1 });
       renderAll();
     }
 
-    function removeFromCart(name) {
-      cart = cart.filter(c => c.product.name !== name);
+    function removeFromCart(key) {
+      cart = cart.filter(c => productKeyOf(c.product) !== key);
       renderAll();
     }
 
-    function changeQty(name, delta) {
-      const item = cart.find(c => c.product.name === name);
+    function changeQty(key, delta) {
+      const item = cart.find(c => productKeyOf(c.product) === key);
       if (item) item.qty = Math.max(1, item.qty + delta);
       renderAll();
     }
 
-    function setQty(name, val) {
-      const item = cart.find(c => c.product.name === name);
+    function setQty(key, val) {
+      const item = cart.find(c => productKeyOf(c.product) === key);
       if (item) item.qty = Math.max(1, parseInt(val) || 1);
       renderPreview(); updateCount();
     }
@@ -1913,7 +2041,9 @@
       }
       empty.style.display = 'none'; table.style.display = 'table';
 
-      body.innerHTML = cart.map(({ product: p, qty }) => `
+      body.innerHTML = cart.map(({ product: p, qty }) => {
+        const key = esc(productKeyOf(p));
+        return `
         <tr>
           <td>
             <div class="td-name">${p.name}</div>
@@ -1924,16 +2054,17 @@
           <td class="td-weight">${p.netWeight || '—'}</td>
           <td>
             <div class="qty-control">
-              <button class="qty-btn" onclick="changeQty('${esc(p.name)}', -1)">−</button>
+              <button class="qty-btn" onclick="changeQty('${key}', -1)">−</button>
               <input class="qty-val" type="number" min="1" value="${qty}"
-                onchange="setQty('${esc(p.name)}', this.value)">
-              <button class="qty-btn" onclick="changeQty('${esc(p.name)}', 1)">+</button>
+                onchange="setQty('${key}', this.value)">
+              <button class="qty-btn" onclick="changeQty('${key}', 1)">+</button>
             </div>
           </td>
           <td>
-            <button class="remove-btn" onclick="removeFromCart('${esc(p.name)}')">Remove</button>
+            <button class="remove-btn" onclick="removeFromCart('${key}')">Remove</button>
           </td>
-        </tr>`).join('');
+        </tr>`;
+      }).join('');
     }
 
     // ── Preview ───────────────────────────────────────────
