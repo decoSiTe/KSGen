@@ -1311,6 +1311,65 @@
       font-size: 11px;
     }
   
+    .request-branch-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .manual-branch-label {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .manual-branch-select {
+      min-height: 34px;
+      min-width: 260px;
+      max-width: min(360px, 48vw);
+      padding: 7px 36px 7px 12px;
+      border: 1px solid rgba(247, 147, 26, 0.35);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.42);
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      outline: none;
+    }
+
+    .manual-branch-select:focus {
+      border-color: rgba(247, 147, 26, 0.78);
+      box-shadow: 0 0 22px -12px rgba(247, 147, 26, 0.82);
+    }
+
+    .manual-branch-select:disabled {
+      opacity: 0.58;
+      cursor: wait;
+    }
+
+    .request-banner.manual-mode #rbBranch {
+      display: none;
+    }
+
+    @media print {
+      .manual-branch-select,
+      .manual-branch-label {
+        display: none !important;
+      }
+
+      .request-banner.manual-mode #rbBranch {
+        display: inline-block !important;
+      }
+    }
+
     /* ── FIX: Items Database scrolling ─────────────────────
        Keeps the left product list scrollable on GitHub Pages and Apps Script.
     */
@@ -1589,8 +1648,12 @@
 
   <!-- Request details banner shown when opened from the Google Sheets sidebar -->
   <div id="requestBanner" class="request-banner">
-    <div>
+    <div class="request-branch-wrap">
       <strong id="rbBranch">—</strong>
+      <span class="manual-branch-label" id="manualBranchLabel" style="display:none;">Branch</span>
+      <select id="manualBranchSelect" class="manual-branch-select" style="display:none;" disabled onchange="setManualBranch(this.value)">
+        <option value="">Loading branches…</option>
+      </select>
       <span id="rbDate"></span>
     </div>
     <div id="rbItems" class="requested-items"></div>
@@ -1715,6 +1778,8 @@
     let allProducts  = [];
     let cart         = [];
     let activeFilter = 'ALL';
+    let manualBranch = '';
+    let isManualGeneratorOpen = false;
     let adminLoggedIn = sessionStorage.getItem('priceTagAdminLoggedIn') === '1';
     let pendingEditKey = '';
     let activeEditKey = '';
@@ -1765,6 +1830,88 @@
         .replace(/\s+00:00:00.*$/i, '')
         .replace(/\s+GMT.*$/i, '')
         .trim();
+    }
+
+
+    function getTodayDateLabel() {
+      return new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+
+    function setGeneratorTitle(branchName) {
+      const title = branchName || 'Price Tag Generator';
+      document.title = title;
+
+      const generatorTitle = document.getElementById('generatorTitle');
+      if (generatorTitle) {
+        generatorTitle.innerHTML = '<img src="logo.png" alt="Logo" class="topbar-logo-img"><span>' + html(title) + '</span>';
+      }
+
+      const rbBranch = document.getElementById('rbBranch');
+      if (rbBranch) rbBranch.textContent = branchName || '—';
+    }
+
+    function initManualBranchSelector() {
+      if (PRELOAD_ROW && PRELOAD_ROW > 1) return;
+
+      isManualGeneratorOpen = true;
+      const reqBanner = document.getElementById('requestBanner');
+      const select = document.getElementById('manualBranchSelect');
+      const label = document.getElementById('manualBranchLabel');
+      const rbDate = document.getElementById('rbDate');
+
+      if (reqBanner) reqBanner.classList.add('visible', 'manual-mode');
+      if (label) label.style.display = 'inline-block';
+      if (rbDate) rbDate.textContent = 'Date Requested: ' + getTodayDateLabel();
+
+      const savedBranch = localStorage.getItem('priceTagManualBranch') || '';
+      manualBranch = savedBranch;
+      setGeneratorTitle(savedBranch);
+
+      if (!select) return;
+      select.style.display = 'inline-block';
+      select.disabled = true;
+      select.innerHTML = '<option value="">Loading branches…</option>';
+
+      apiCall('getBranches')
+        .then(data => {
+          const branches = (Array.isArray(data) ? data : [])
+            .map(branch => typeof branch === 'string' ? branch : (branch.name || branch.branch || branch.Branch || ''))
+            .map(branch => String(branch).trim())
+            .filter(Boolean);
+
+          const uniqueBranches = [...new Set(branches)].sort((a, b) => a.localeCompare(b));
+
+          if (!uniqueBranches.length) {
+            select.innerHTML = '<option value="">No branches found</option>';
+            select.disabled = true;
+            return;
+          }
+
+          select.innerHTML = '<option value="">— Choose branch —</option>' +
+            uniqueBranches.map(branch => '<option value="' + html(branch) + '">' + html(branch) + '</option>').join('');
+          select.disabled = false;
+
+          if (savedBranch && uniqueBranches.includes(savedBranch)) {
+            select.value = savedBranch;
+            setManualBranch(savedBranch);
+          }
+        })
+        .catch(err => {
+          console.error('[BRANCHES] Failed to load branch list:', err);
+          select.innerHTML = '<option value="">Branch list unavailable</option>';
+          select.disabled = true;
+        });
+    }
+
+    function setManualBranch(branchName) {
+      manualBranch = String(branchName || '').trim();
+      if (manualBranch) localStorage.setItem('priceTagManualBranch', manualBranch);
+      else localStorage.removeItem('priceTagManualBranch');
+      setGeneratorTitle(manualBranch);
     }
 
     function normalizeProduct(p, index) {
@@ -1983,6 +2130,11 @@
     window.addEventListener('beforeprint', () => {
       const banner = document.getElementById('autoLoadBanner');
       if (banner) banner.style.display = 'none';
+
+      if (isManualGeneratorOpen) {
+        const select = document.getElementById('manualBranchSelect');
+        if (select && select.value) setManualBranch(select.value);
+      }
     });
 
     // ── Boot ─────────────────────────────────────────────
@@ -1997,6 +2149,7 @@
       });
 
       document.getElementById('searchInput').addEventListener('input', renderProductList);
+      initManualBranchSelector();
 
       apiCall('getProducts')
         .then(data => {
@@ -2054,13 +2207,12 @@
       }
 
       // Use the requesting branch as the page/print title.
-      if (req.branch) {
-        document.title = req.branch;
-        const generatorTitle = document.getElementById('generatorTitle');
-        if (generatorTitle) {
-          generatorTitle.innerHTML = '<img src="logo.png" alt="Logo" class="topbar-logo-img"><span>' + html(req.branch) + '</span>';
-        }
-      }
+      if (req.branch) setGeneratorTitle(req.branch);
+
+      const manualBranchSelect = document.getElementById('manualBranchSelect');
+      const manualBranchLabel = document.getElementById('manualBranchLabel');
+      if (manualBranchSelect) manualBranchSelect.style.display = 'none';
+      if (manualBranchLabel) manualBranchLabel.style.display = 'none';
 
       const requestedItems = getRequestedItems(req);
       console.log('[PRELOAD] Requested items:', requestedItems);
