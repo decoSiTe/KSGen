@@ -2527,6 +2527,7 @@
       const descAr = cleanDisplayValue(p.descriptionAR || '');
       const allergensEn = normalizeAllergensEN(cleanDisplayValue(p.allergensEN || ''));
       const allergensAr = normalizeAllergensAR(cleanDisplayValue(p.allergensAR || '')) || autoAllergensAR(allergensEn);
+      const hasDescription = Boolean(descEn || descAr);
       const netWt = normalizeNetWeight(p.netWeightEN || p.netWeight || '');
       const price = normalizePrice(p.price);
       const portions = formatPortions(p);
@@ -2547,15 +2548,17 @@
             ` : ``}
           </div>
 
-          <div class="desc-en" style="font-size:${descSize(descEn)};">
-            ${html(descEn)}
-          </div>
+          ${hasDescription ? `
+            <div class="desc-en" style="font-size:${descSize(descEn)};">
+              ${html(descEn)}
+            </div>
 
-          <div class="center-line"></div>
+            <div class="center-line"></div>
 
-          <div class="desc-ar" style="font-size:${descArSize(descAr)};">
-            ${html(descAr)}
-          </div>
+            <div class="desc-ar" style="font-size:${descArSize(descAr)};">
+              ${html(descAr)}
+            </div>
+          ` : ``}
 
           <div class="allergens">
             ${allergensEn ? `ALLERGENS: ${html(allergensEn)}` : ''}
