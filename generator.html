@@ -341,6 +341,29 @@
       box-shadow: var(--glow-orange);
     }
 
+    .bulk-select-btn {
+      min-height: 30px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 214, 0, 0.32);
+      background: rgba(255, 214, 0, 0.06);
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.2s, border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+
+    .bulk-select-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255, 214, 0, 0.72);
+      background: rgba(255, 214, 0, 0.13);
+      box-shadow: 0 0 22px -14px rgba(255, 214, 0, 0.78);
+    }
+
     /* ── Product list ── */
     .product-list {
       overflow-y: auto;
@@ -1720,6 +1743,8 @@
         <button class="filter-btn" data-cat="PASTRY">PASTRIES</button>
         <button class="filter-btn" data-cat="SSMM">SSMM</button>
         <button class="filter-btn" data-cat="CHOCOLATES">CHOCO</button>
+        <button class="bulk-select-btn" type="button" onclick="selectAllVisibleProducts()">Select All</button>
+        <button class="bulk-select-btn" type="button" onclick="deselectAllVisibleProducts()">Deselect All</button>
       </div>
 
       <div class="product-list" id="productList">
@@ -2261,11 +2286,10 @@
     }
 
     // ── Product list ──────────────────────────────────────
-    function renderProductList() {
+    function getVisibleProducts() {
       const q = document.getElementById('searchInput').value.trim().toLowerCase();
-      const list = document.getElementById('productList');
 
-      const filtered = allProducts.filter(p => {
+      return allProducts.filter(p => {
         const matchCat = activeFilter === 'ALL' || p.category === activeFilter;
         const matchQ   = !q || p.name.toLowerCase().includes(q) ||
                          p.arabicName.toLowerCase().includes(q) ||
@@ -2273,6 +2297,30 @@
                          (p.descriptionEN || '').toLowerCase().includes(q);
         return matchCat && matchQ;
       });
+    }
+
+    function selectAllVisibleProducts() {
+      const visibleProducts = getVisibleProducts();
+
+      visibleProducts.forEach(p => {
+        const key = productKeyOf(p);
+        if (!cart.some(c => productKeyOf(c.product) === key)) {
+          cart.push({ product: cloneProductForCart(p), qty: 1 });
+        }
+      });
+
+      renderAll();
+    }
+
+    function deselectAllVisibleProducts() {
+      const visibleKeys = new Set(getVisibleProducts().map(p => productKeyOf(p)));
+      cart = cart.filter(c => !visibleKeys.has(productKeyOf(c.product)));
+      renderAll();
+    }
+
+    function renderProductList() {
+      const list = document.getElementById('productList');
+      const filtered = getVisibleProducts();
 
       if (!filtered.length) {
         list.innerHTML = '<div style="text-align:center;padding:32px;color:var(--muted);font-size:12px;">No products found.</div>';
