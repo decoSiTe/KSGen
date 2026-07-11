@@ -2224,6 +2224,43 @@
       }
     }
 
+  
+    /* SELECTED ITEMS: remove Description column space only */
+    .selected-column table {
+      min-width: 560px !important;
+    }
+
+    .selected-column th:nth-child(1),
+    .selected-column td:nth-child(1) {
+      width: 34% !important;
+    }
+
+    .selected-column th:nth-child(2),
+    .selected-column td:nth-child(2) {
+      width: 15% !important;
+    }
+
+    .selected-column th:nth-child(3),
+    .selected-column td:nth-child(3) {
+      width: 15% !important;
+    }
+
+    .selected-column th:nth-child(4),
+    .selected-column td:nth-child(4) {
+      width: 14% !important;
+    }
+
+    .selected-column th:nth-child(5),
+    .selected-column td:nth-child(5) {
+      width: 22% !important;
+    }
+
+    @media print {
+      .selected-column table {
+        min-width: 0 !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -2373,7 +2410,6 @@
                 <thead>
                   <tr>
                     <th>Item Name</th>
-                    <th>Description</th>
                     <th>Price</th>
                     <th>Net Weight</th>
                     <th>Qty</th>
@@ -2998,7 +3034,6 @@
             <div class="td-name">${p.name}</div>
             ${p.arabicName ? `<div class="td-arabic">${p.arabicName}</div>` : ''}
           </td>
-          <td class="td-desc">${p.description || '—'}</td>
           <td class="td-price">AED ${p.price}</td>
           <td class="td-weight">${p.netWeight || '—'}</td>
           <td>
