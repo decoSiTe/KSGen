@@ -2076,6 +2076,154 @@
       }
     }
 
+  
+    /* PREVIEW 3-COLUMN + MATCHED SCROLLBARS — UI only, no flow/function changes */
+    @media (min-width: 1501px) {
+      .right-inner {
+        padding-left: 22px !important;
+        padding-right: 22px !important;
+      }
+
+      .workbench-grid {
+        grid-template-columns: minmax(955px, 1fr) minmax(470px, 0.55fr) !important;
+        gap: 16px !important;
+        height: calc(100vh - 160px) !important;
+        min-height: 0 !important;
+      }
+
+      .preview-column {
+        min-width: 0 !important;
+        height: calc(100vh - 160px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+      }
+
+      .preview-section {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        max-height: calc(100vh - 160px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        padding: 18px 14px 18px 18px !important;
+      }
+
+      .preview-section .sec-header {
+        flex: 0 0 auto !important;
+      }
+
+      .preview-grid {
+        width: 100% !important;
+        max-width: none !important;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        display: grid !important;
+        grid-template-columns: repeat(3, var(--tag-width)) !important;
+        gap: 0.20cm !important;
+        justify-content: start !important;
+        align-content: start !important;
+        align-items: start !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 0 12px 14px 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      .selected-column {
+        max-height: calc(100vh - 160px) !important;
+      }
+    }
+
+    /* Keep 2 columns on narrower desktop/tablet so layout does not break */
+    @media (max-width: 1500px) and (min-width: 901px) {
+      .workbench-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+
+      .selected-column {
+        position: relative !important;
+        order: -1 !important;
+        max-height: 38vh !important;
+      }
+
+      .preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(var(--tag-width), var(--tag-width))) !important;
+      }
+    }
+
+    /* Preview scrollbar: same style, placed on the right edge of Preview panel */
+    .preview-grid {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(247,147,26,0.75) rgba(255,255,255,0.06);
+    }
+
+    .preview-grid::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .preview-grid::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+    }
+
+    .preview-grid::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #F7931A, #EA580C);
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(247,147,26,0.35);
+    }
+
+    .preview-grid::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #FFD600, #F7931A);
+    }
+
+    /* Selected Items scrollbar: match Items Database scrollbar */
+    .selected-column .table-wrap {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(247,147,26,0.75) rgba(255,255,255,0.06);
+    }
+
+    .selected-column .table-wrap::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .selected-column .table-wrap::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+    }
+
+    .selected-column .table-wrap::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #F7931A, #EA580C);
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(247,147,26,0.35);
+    }
+
+    .selected-column .table-wrap::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #FFD600, #F7931A);
+    }
+
+    @media print {
+      .workbench-grid,
+      .preview-column,
+      .preview-section,
+      .preview-grid,
+      .selected-column .table-wrap {
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        padding-right: 0 !important;
+      }
+
+      .preview-grid {
+        grid-template-columns: repeat(2, 8cm) !important;
+        gap: 0.25cm !important;
+      }
+    }
+
   </style>
 </head>
 <body>
