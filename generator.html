@@ -1635,174 +1635,6 @@
       }
     }
 
-  
-    /* UI ONLY REFINEMENT — no function changes, no price-tag design changes */
-    html, body { height: 100%; overflow: hidden; }
-    .topbar { flex: 0 0 68px; }
-
-    .layout {
-      flex: 1 1 auto !important;
-      height: auto !important;
-      min-height: 0 !important;
-      overflow: hidden !important;
-      grid-template-columns: 335px minmax(0, 1fr) !important;
-    }
-
-    .left-panel {
-      height: auto !important;
-      max-height: none !important;
-      min-height: 0 !important;
-      overflow: hidden !important;
-    }
-
-    .product-list {
-      flex: 1 1 auto !important;
-      min-height: 0 !important;
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-      padding-bottom: 28px !important;
-    }
-
-    .right-panel {
-      min-width: 0;
-      min-height: 0;
-      overflow: hidden !important;
-    }
-
-    .right-inner {
-      min-width: 0;
-      min-height: 0;
-      height: 100%;
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-      padding: 22px 28px 34px !important;
-    }
-
-    .workbench-grid {
-      display: grid;
-      grid-template-columns: minmax(520px, 1.15fr) minmax(430px, 0.85fr);
-      gap: 22px;
-      align-items: start;
-      min-height: 100%;
-    }
-
-    .preview-column, .selected-column { min-width: 0; }
-
-    .selected-column {
-      position: sticky;
-      top: 0;
-      align-self: start;
-      max-height: calc(100vh - 160px);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(15, 17, 21, 0.82), rgba(3, 3, 4, 0.62));
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      box-shadow: 0 0 46px -24px rgba(247, 147, 26, 0.65);
-      backdrop-filter: blur(16px);
-    }
-
-    .selected-column .selected-header {
-      flex: 0 0 auto;
-      margin: 0;
-      padding: 18px 18px 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.025);
-    }
-
-    .selected-column .selected-header .sec-title { font-size: 18px; }
-    .selected-column .selected-header .sec-title::after { width: 38px; margin-top: 6px; }
-
-    .selected-column .table-wrap {
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow: auto;
-      margin: 0;
-      border: 0;
-      border-radius: 0 0 22px 22px;
-      background: transparent;
-      box-shadow: none;
-      backdrop-filter: none;
-    }
-
-    .selected-column table { min-width: 720px; }
-
-    .selected-column thead th {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      background: rgba(20, 22, 28, 0.98);
-      backdrop-filter: blur(10px);
-    }
-
-    .selected-column tbody td { padding: 12px 10px; }
-    .selected-column .td-desc { max-width: 230px; }
-    .selected-column .qty-control { transform: scale(0.96); transform-origin: left center; }
-    .selected-column .action-cell { gap: 6px; }
-
-    .preview-section {
-      min-height: calc(100vh - 165px);
-      padding: 20px !important;
-      border-radius: 24px !important;
-      background:
-        radial-gradient(circle at 16% 12%, rgba(247, 147, 26, 0.08), transparent 30%),
-        rgba(15, 17, 21, 0.42) !important;
-      border: 1px solid rgba(255, 255, 255, 0.09) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 0 60px -36px rgba(247,147,26,0.70);
-    }
-
-    .preview-section .sec-header { margin-bottom: 18px; }
-
-    .preview-grid {
-      grid-template-columns: repeat(auto-fill, minmax(var(--tag-width), var(--tag-width))) !important;
-      gap: 0.28cm !important;
-      justify-content: start !important;
-      align-items: start !important;
-    }
-
-    @media (max-width: 1400px) {
-      .workbench-grid { grid-template-columns: minmax(0, 1fr); }
-      .selected-column {
-        position: relative;
-        top: auto;
-        max-height: none;
-        order: -1;
-      }
-      .selected-column .table-wrap { max-height: 38vh; }
-    }
-
-    @media (max-width: 900px) {
-      html, body { height: auto; overflow: auto; }
-      .layout {
-        grid-template-columns: 1fr !important;
-        height: auto !important;
-        overflow: visible !important;
-      }
-      .left-panel { max-height: 45vh !important; overflow: hidden !important; }
-      .right-panel, .right-inner { height: auto; overflow: visible !important; }
-      .right-inner { padding: 16px !important; }
-      .selected-column .table-wrap { max-height: 40vh; }
-      .preview-section { min-height: auto; }
-      .preview-grid { grid-template-columns: var(--tag-width) !important; }
-    }
-
-    @media print {
-      .workbench-grid, .preview-column, .selected-column {
-        display: block !important;
-        width: auto !important;
-        height: auto !important;
-        max-height: none !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: visible !important;
-        background: #fff !important;
-        border: 0 !important;
-        box-shadow: none !important;
-      }
-    }
-
   </style>
 </head>
 <body>
@@ -1926,45 +1758,43 @@
     <!-- RIGHT: Cart + Preview -->
     <div class="right-panel">
       <div class="right-inner">
-        <div class="workbench-grid">
 
-          <section class="preview-column" aria-label="Price tag preview">
-            <div class="preview-section">
-              <div class="sec-header">
-                <div class="sec-title">Preview</div>
-              </div>
-              <div class="preview-grid" id="previewGrid"></div>
-            </div>
-          </section>
-
-          <section class="selected-column" aria-label="Selected items for print">
-            <div class="sec-header selected-header">
-              <div class="sec-title">Selected Items for Print</div>
-              <div class="sec-count" id="selCount">0 items</div>
-            </div>
-
-            <div class="table-wrap">
-              <div class="cart-empty" id="cartEmpty">
-                <div class="cart-empty-icon">🏷️</div>
-                <p>No items selected. Add products from the left.</p>
-              </div>
-              <table id="selTable" style="display:none;">
-                <thead>
-                  <tr>
-                    <th>Item Name</th>
-                    <th>Description</th>
-                    <th>Price</th>
-                    <th>Net Weight</th>
-                    <th>Qty</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody id="selBody"></tbody>
-              </table>
-            </div>
-          </section>
-
+        <!-- Cart -->
+        <div class="sec-header">
+          <div class="sec-title">Selected Items for Print</div>
+          <div class="sec-count" id="selCount">0 items</div>
         </div>
+
+        <div class="table-wrap">
+          <div class="cart-empty" id="cartEmpty">
+            <div class="cart-empty-icon">🏷️</div>
+            <p>No items selected. Add products from the left.</p>
+          </div>
+          <table id="selTable" style="display:none;">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Net Weight</th>
+                <th>Qty</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="selBody"></tbody>
+          </table>
+        </div>
+
+
+
+        <!-- Preview -->
+        <div class="preview-section">
+          <div class="sec-header">
+            <div class="sec-title">Preview</div>
+          </div>
+          <div class="preview-grid" id="previewGrid"></div>
+        </div>
+
       </div>
     </div>
   </div>
