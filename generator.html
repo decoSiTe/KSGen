@@ -1977,6 +1977,105 @@
       .net-wt, .portions, .price, .aed { color: #f5e8c9 !important; }
     }
 
+  
+    /* PREVIEW OWN SCROLLBAR ONLY — no function changes, no price-tag design changes */
+    .workbench-grid {
+      height: calc(100vh - 160px) !important;
+      min-height: 0 !important;
+    }
+
+    .preview-column {
+      height: calc(100vh - 160px) !important;
+      min-height: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+    }
+
+    .preview-section {
+      height: 100% !important;
+      min-height: 0 !important;
+      max-height: calc(100vh - 160px) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+    }
+
+    .preview-section .sec-header {
+      flex: 0 0 auto !important;
+    }
+
+    .preview-grid {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      padding-right: 10px !important;
+      align-content: start !important;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(247,147,26,0.75) rgba(255,255,255,0.06);
+    }
+
+    .preview-grid::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .preview-grid::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+    }
+
+    .preview-grid::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #F7931A, #EA580C);
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(247,147,26,0.35);
+    }
+
+    .preview-grid::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #FFD600, #F7931A);
+    }
+
+    @media (max-width: 1400px) {
+      .workbench-grid {
+        height: auto !important;
+      }
+
+      .preview-column {
+        height: 58vh !important;
+      }
+
+      .preview-section {
+        max-height: 58vh !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .preview-column,
+      .preview-section {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      .preview-grid {
+        max-height: 55vh !important;
+        overflow-y: auto !important;
+      }
+    }
+
+    @media print {
+      .workbench-grid,
+      .preview-column,
+      .preview-section,
+      .preview-grid {
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        padding-right: 0 !important;
+      }
+    }
+
   </style>
 </head>
 <body>
