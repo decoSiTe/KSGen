@@ -3689,7 +3689,7 @@
           const emailFailed = result && result.emailError && !result.emailSent;
           const message = emailFailed
             ? '✓ ' + branch + ' was changed to PRINTED in Google Sheet, but the completion email failed: ' + result.emailError
-            : '✓ ' + branch + ' was changed to PRINTED in Google Sheet.';
+            : '✓ ' + branch + ' was changed to PRINTED';
 
           showAutoLoadBanner(message, emailFailed ? 'warn' : 'success');
           return loadPendingNotifications(false);
