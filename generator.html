@@ -8,12 +8,11 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" type="image/png" href="favicon.png">
   <script>
-    // Row number passed by Apps Script doGet: ?page=generator&row=132
-    // This makes the generator auto-load the selected request when opened from the sidebar.
+    
     var PRELOAD_ROW = 0;
     (function () {
       try {
-        // Apps Script template value. Keep this file as generator.html and open with createTemplateFromFile().
+        
         var templateValue = '<?= typeof preloadRow !== "undefined" ? preloadRow : "" ?>';
         var templateRow = parseInt(templateValue, 10);
         if (!isNaN(templateRow) && templateRow > 0) PRELOAD_ROW = templateRow;
@@ -22,7 +21,7 @@
       }
 
       try {
-        // Fallback if the row is visible in the URL.
+        
         var params = new URLSearchParams(window.location.search);
         var urlRow = parseInt(params.get('row') || '0', 10);
         if (!isNaN(urlRow) && urlRow > 0) PRELOAD_ROW = urlRow;
@@ -105,10 +104,7 @@
     html { background: var(--bg); }
 
 
-    /* Price tag font setup
-       Works when Futura PT fonts are installed on the device.
-       For GitHub Pages on all devices, upload licensed font files and update the url() paths.
-    */
+    
     @font-face {
       font-family: 'Futura PT Extra Bold';
       src: local('Futura PT Extra Bold'),
@@ -936,10 +932,7 @@
       pointer-events: none;
     }
 
-    /* Move the item name fully inside the border line.
-       English item name stays 0.5cm and Arabic name stays below it. */
-
-    /* Title block: fully inside the border, no top cut, English fixed at 0.5cm */
+    
     .name-stack {
       position: absolute;
       top: 0.44cm;
@@ -1393,9 +1386,7 @@
       }
     }
 
-    /* ── FIX: Items Database scrolling ─────────────────────
-       Keeps the left product list scrollable on GitHub Pages and Apps Script.
-    */
+    
     html,
     body {
       height: 100%;
@@ -1517,7 +1508,7 @@
     }
 
   
-    /* Topbar print actions beside Admin · Print Tool */
+    
     .topbar-right {
       display: flex;
       align-items: center;
@@ -1636,7 +1627,7 @@
     }
 
   
-    /* UI ONLY REFINEMENT — no function changes, no price-tag design changes */
+    
     html, body { height: 100%; overflow: hidden; }
     .topbar { flex: 0 0 68px; }
 
@@ -2774,6 +2765,849 @@
       .notification-dropdown { display: none !important; }
     }
 
+
+    /* ═══════════════════════════════════════════════════════════════
+       INTEGRATED REQUEST RECORDS PAGE — same generator.html file
+       ═══════════════════════════════════════════════════════════════ */
+    .request-records-page {
+      position: fixed;
+      inset: 0;
+      z-index: 250000;
+      display: none;
+      grid-template-columns: 58px minmax(0, 1fr);
+      background: #f4f6fb;
+      color: #11162f;
+      overflow: hidden;
+      font-family: var(--font-body);
+    }
+
+    .request-records-page.open { display: grid; }
+
+    body.request-records-open {
+      overflow: hidden !important;
+    }
+
+    .request-side-rail {
+      min-width: 0;
+      padding: 12px 8px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      background: linear-gradient(180deg, #252b5c, #151a3e);
+      box-shadow: 5px 0 18px rgba(20, 27, 68, 0.16);
+    }
+
+    .request-home-button {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(100, 92, 255, 0.95), rgba(71, 82, 235, 0.95));
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(55, 52, 180, 0.34);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .request-home-button:hover {
+      transform: translateY(-1px) scale(1.03);
+      box-shadow: 0 12px 28px rgba(55, 52, 180, 0.42);
+    }
+
+    .request-home-button img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .request-records-main {
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .request-records-header {
+      min-height: 62px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex: 0 0 auto;
+      background: rgba(255,255,255,0.96);
+      border-bottom: 1px solid #e1e5ef;
+      box-shadow: 0 2px 10px rgba(25, 35, 75, 0.05);
+    }
+
+    .request-records-title-wrap {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .request-records-title-dot {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6c63ff, #4456f3);
+      box-shadow: 0 0 0 5px rgba(92, 89, 255, 0.10);
+    }
+
+    .request-records-title-wrap h1 {
+      margin: 0;
+      color: #11162f;
+      font-family: var(--font-heading);
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .request-records-title-wrap p {
+      margin: 2px 0 0;
+      color: #7c849b;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .request-header-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .request-toolbar-button {
+      min-height: 34px;
+      padding: 7px 13px;
+      border: 1px solid #d8ddef;
+      border-radius: 999px;
+      background: #fff;
+      color: #303855;
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: border-color .18s, color .18s, box-shadow .18s;
+    }
+
+    .request-toolbar-button:hover {
+      color: #5049ef;
+      border-color: #8f89ff;
+      box-shadow: 0 8px 20px rgba(80,73,239,.12);
+    }
+
+    .request-record-count {
+      min-height: 32px;
+      padding: 7px 12px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #f0efff;
+      color: #584fff;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .request-records-content {
+      min-width: 0;
+      min-height: 0;
+      flex: 1 1 auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .request-records-toolbar {
+      min-height: 52px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      flex: 0 0 auto;
+      border: 1px solid #dfe3ec;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 4px 16px rgba(31, 39, 81, 0.05);
+    }
+
+    .request-search-box,
+    .request-status-filter {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .request-search-box { flex: 1 1 auto; }
+    .request-status-filter { flex: 0 0 260px; }
+
+    .request-search-box > span,
+    .request-status-filter > span {
+      flex: 0 0 auto;
+      color: #687089;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .12em;
+    }
+
+    .request-search-box input,
+    .request-status-filter select {
+      width: 100%;
+      height: 36px;
+      padding: 8px 12px;
+      border: 1px solid #d8deea;
+      border-radius: 10px;
+      background: #fff;
+      color: #222942;
+      outline: none;
+      font-family: var(--font-body);
+      font-size: 11px;
+      box-shadow: inset 0 1px 2px rgba(25,35,75,.03);
+    }
+
+    .request-search-box input:focus,
+    .request-status-filter select:focus {
+      border-color: #7770ff;
+      box-shadow: 0 0 0 3px rgba(103, 94, 255, .10);
+    }
+
+    .request-records-table-wrap {
+      min-width: 0;
+      min-height: 0;
+      flex: 1 1 auto;
+      overflow: auto;
+      border: 1px solid #dde2eb;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(31, 39, 81, 0.06);
+      scrollbar-width: thin;
+      scrollbar-color: #7770ff #edf0f6;
+    }
+
+    .request-records-table-wrap::-webkit-scrollbar { width: 9px; height: 9px; }
+    .request-records-table-wrap::-webkit-scrollbar-track { background: #edf0f6; }
+    .request-records-table-wrap::-webkit-scrollbar-thumb { background: #7770ff; border-radius: 99px; }
+
+    .request-records-table {
+      width: 100%;
+      min-width: 1420px;
+      border-collapse: separate;
+      border-spacing: 0;
+      color: #1d243c;
+      font-size: 10px;
+    }
+
+    .request-records-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      padding: 11px 10px;
+      background: #0e1330;
+      color: #fff;
+      border-right: 1px solid rgba(255,255,255,.12);
+      border-bottom: 0;
+      font-family: var(--font-body);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: none;
+      white-space: nowrap;
+    }
+
+    .request-records-table thead th:last-child { border-right: 0; }
+
+    .request-records-table tbody tr:nth-child(even) { background: #f7f8fb; }
+    .request-records-table tbody tr:hover { background: #f0efff; }
+
+    .request-records-table tbody td {
+      padding: 10px;
+      vertical-align: top;
+      border-right: 1px solid #e7eaf0;
+      border-bottom: 1px solid #e7eaf0;
+      line-height: 1.45;
+    }
+
+    .request-records-table tbody td:last-child { border-right: 0; }
+    .request-records-table tbody tr:last-child td { border-bottom: 0; }
+
+    .request-records-table th:nth-child(1),
+    .request-records-table td:nth-child(1) { width: 150px; min-width: 150px; }
+    .request-records-table th:nth-child(2),
+    .request-records-table td:nth-child(2) { width: 230px; min-width: 230px; }
+    .request-records-table th:nth-child(3),
+    .request-records-table td:nth-child(3) { width: 135px; min-width: 135px; }
+    .request-records-table th:nth-child(4),
+    .request-records-table td:nth-child(4) { width: 230px; min-width: 230px; }
+    .request-records-table th:nth-child(5),
+    .request-records-table td:nth-child(5) { width: 360px; min-width: 360px; }
+    .request-records-table th:nth-child(6),
+    .request-records-table td:nth-child(6) { width: 280px; min-width: 280px; }
+    .request-records-table th:nth-child(7),
+    .request-records-table td:nth-child(7) { width: 125px; min-width: 125px; }
+
+    .request-cell-mono {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .request-cell-email {
+      color: #303855;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .request-cell-branch {
+      color: #11162f;
+      font-weight: 800;
+    }
+
+    .request-cell-list,
+    .request-cell-notes {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .request-cell-notes.empty { color: #a2a8b8; font-style: italic; }
+
+    .request-table-status {
+      min-width: 100px;
+      height: 31px;
+      padding: 0 25px 0 10px;
+      border: 1px solid #f59b71;
+      border-radius: 999px;
+      background: #fff2ec;
+      color: #c2410c;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 900;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .request-table-status:disabled { opacity: .55; cursor: wait; }
+
+    .request-status-badge {
+      min-width: 94px;
+      min-height: 27px;
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .request-status-badge.printed { background: #d9f6d6; color: #14720f; }
+    .request-status-badge.pending { background: #ffe2d6; color: #b53200; }
+    .request-status-badge.progress { background: #dce9ff; color: #194f9a; }
+    .request-status-badge.other { background: #edf0f5; color: #596176; }
+
+    .request-records-empty {
+      height: 180px;
+      text-align: center;
+      vertical-align: middle !important;
+      color: #7a8299;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .request-record-row.updating { opacity: .56; pointer-events: none; }
+
+    @media (max-width: 900px) {
+      .request-records-page { grid-template-columns: 50px minmax(0, 1fr); }
+      .request-side-rail { padding: 10px 5px; }
+      .request-home-button { width: 38px; height: 38px; }
+      .request-home-button img { width: 27px; height: 27px; }
+      .request-records-header { padding: 10px 12px; }
+      .request-records-title-wrap p { display: none; }
+      .request-records-content { padding: 8px; }
+      .request-records-toolbar { align-items: stretch; flex-direction: column; }
+      .request-status-filter { flex-basis: auto; }
+      .request-search-box, .request-status-filter { width: 100%; }
+      .request-header-actions .request-toolbar-button { display: none; }
+    }
+
+    @media print {
+      .request-records-page { display: none !important; }
+    }
+
+
+    
+    .integrated-nav-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .integrated-nav-button {
+      min-height: 40px;
+      height: 40px;
+      padding: 5px 10px 5px 7px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.045);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      outline: none;
+      white-space: nowrap;
+      transition: transform .18s ease, color .18s ease, border-color .18s ease,
+                  background .18s ease, box-shadow .18s ease;
+    }
+
+    .integrated-nav-button img,
+    .print-icon-gif {
+      width: 27px;
+      height: 27px;
+      display: block;
+      object-fit: contain;
+      flex: 0 0 auto;
+      pointer-events: none;
+    }
+
+    .integrated-nav-button:hover,
+    .integrated-nav-button.active {
+      transform: translateY(-1px);
+      color: var(--gold);
+      border-color: rgba(255,214,0,.48);
+      background: rgba(255,214,0,.08);
+      box-shadow: 0 0 24px -10px rgba(255,214,0,.78);
+    }
+
+    .topbar-print-actions .btn-primary.print-gif-button {
+      min-width: 112px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 6px 16px 6px 10px;
+    }
+
+    .topbar-logo { cursor: pointer; }
+
+   
+    .request-records-page {
+      top: 68px !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      grid-template-columns: minmax(0, 1fr) !important;
+      z-index: 9000 !important;
+    }
+
+    .request-side-rail { display: none !important; }
+    body.integrated-sheet-open { overflow: hidden !important; }
+
+    .integrated-table-cell {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.42;
+    }
+
+    .integrated-table-cell.arabic {
+      direction: rtl;
+      text-align: right;
+      font-family: Arial, Tahoma, 'Noto Sans Arabic', sans-serif;
+    }
+
+    .integrated-table-cell.muted { color: #727a90; }
+    .integrated-table-cell.strong { color: #11162f; font-weight: 800; }
+    .integrated-table-cell.price { color: #a54d00; font-family: var(--font-mono); font-weight: 900; white-space: nowrap; }
+
+    .request-records-table.products-table { min-width: 1900px; }
+    .request-records-table.requests-table { min-width: 1500px; }
+    .request-records-table.branches-table { min-width: 620px; }
+    .request-records-table.holidays-table { min-width: 760px; }
+
+    .request-records-table.products-table th:nth-child(1) { min-width: 180px; }
+    .request-records-table.products-table th:nth-child(2) { min-width: 150px; }
+    .request-records-table.products-table th:nth-child(3),
+    .request-records-table.products-table th:nth-child(4) { min-width: 250px; }
+    .request-records-table.products-table th:nth-child(5) { min-width: 90px; }
+    .request-records-table.products-table th:nth-child(6) { min-width: 90px; }
+    .request-records-table.products-table th:nth-child(7),
+    .request-records-table.products-table th:nth-child(8) { min-width: 125px; }
+    .request-records-table.products-table th:nth-child(9),
+    .request-records-table.products-table th:nth-child(10) { min-width: 180px; }
+    .request-records-table.products-table th:nth-child(11) { min-width: 110px; }
+
+    @media (max-width: 1250px) {
+      .integrated-nav-button span { display: none; }
+      .integrated-nav-button { width: 40px; padding: 5px; }
+      .topbar-right { gap: 8px; }
+      .integrated-nav-actions { gap: 5px; }
+    }
+
+    @media (max-width: 900px) {
+      .request-records-page { top: 124px !important; }
+      .topbar-print-actions .btn-primary.print-gif-button { min-width: 44px; width: 44px; padding: 5px; }
+      .topbar-print-actions .btn-primary.print-gif-button span { display: none; }
+    }
+
+    @media print {
+      .integrated-nav-actions { display: none !important; }
+    }
+
+
+
+   
+    .integrated-nav-button,
+    .topbar-icon-button,
+    .topbar-print-actions .btn-primary.print-gif-button {
+      width: 40px !important;
+      min-width: 40px !important;
+      height: 40px !important;
+      min-height: 40px !important;
+      padding: 5px !important;
+      gap: 0 !important;
+      border: 1px solid rgba(255,255,255,.14) !important;
+      border-radius: 50% !important;
+      background: rgba(255,255,255,.045) !important;
+      color: var(--muted) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer;
+      outline: none;
+      box-shadow: none !important;
+      transition: transform .18s ease, color .18s ease, border-color .18s ease,
+                  background .18s ease, box-shadow .18s ease !important;
+    }
+
+    .integrated-nav-button span,
+    .topbar-print-actions .print-gif-button span { display: none !important; }
+
+    .integrated-nav-button img,
+    .print-icon-gif {
+      width: 28px !important;
+      height: 28px !important;
+      border-radius: 50%;
+      object-fit: contain;
+    }
+
+    .integrated-nav-button:hover,
+    .integrated-nav-button.active,
+    .topbar-icon-button:hover,
+    .topbar-print-actions .btn-primary.print-gif-button:hover {
+      transform: translateY(-1px) !important;
+      color: var(--gold) !important;
+      border-color: rgba(255,214,0,.48) !important;
+      background: rgba(255,214,0,.08) !important;
+      box-shadow: 0 0 24px -10px rgba(255,214,0,.85) !important;
+    }
+
+    .topbar-print-actions { gap: 8px !important; }
+    .topbar-right { gap: 9px !important; }
+
+    /* The integrated pages stay inside generator.html and use the same dark/orange theme. */
+    .request-records-page {
+      background:
+        radial-gradient(circle at 16% 12%, rgba(247,147,26,.14), transparent 30%),
+        radial-gradient(circle at 86% 18%, rgba(255,214,0,.07), transparent 28%),
+        #030304 !important;
+      color: var(--text) !important;
+    }
+
+    .request-records-main { background: transparent !important; }
+
+    .request-records-header {
+      min-height: 64px !important;
+      padding: 10px 20px !important;
+      background: linear-gradient(180deg, rgba(15,17,21,.96), rgba(3,3,4,.84)) !important;
+      border-bottom: 1px solid rgba(247,147,26,.18) !important;
+      box-shadow: 0 0 40px -24px rgba(247,147,26,.72) !important;
+      backdrop-filter: blur(18px);
+    }
+
+    .request-records-title-dot {
+      background: linear-gradient(135deg, var(--accent-2), var(--gold)) !important;
+      box-shadow: 0 0 0 5px rgba(247,147,26,.10), 0 0 22px rgba(247,147,26,.38) !important;
+    }
+
+    .request-records-title-wrap h1 { color: var(--text) !important; }
+    .request-records-title-wrap p { color: var(--muted) !important; }
+
+    .request-toolbar-button,
+    .sheet-add-button {
+      min-height: 34px;
+      border: 1px solid rgba(255,255,255,.14) !important;
+      background: rgba(255,255,255,.045) !important;
+      color: var(--muted) !important;
+      box-shadow: none !important;
+    }
+
+    .request-toolbar-button:hover,
+    .sheet-add-button:hover {
+      color: var(--gold) !important;
+      border-color: rgba(255,214,0,.48) !important;
+      background: rgba(255,214,0,.08) !important;
+      box-shadow: 0 0 24px -12px rgba(255,214,0,.78) !important;
+    }
+
+    .sheet-add-button {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .request-record-count {
+      background: rgba(255,214,0,.07) !important;
+      border: 1px solid rgba(255,214,0,.20) !important;
+      color: var(--gold) !important;
+    }
+
+    .request-records-content { padding: 16px !important; gap: 12px !important; }
+
+    .request-records-toolbar,
+    .request-records-table-wrap {
+      background: rgba(15,17,21,.78) !important;
+      border: 1px solid rgba(255,255,255,.10) !important;
+      box-shadow: 0 0 46px -28px rgba(247,147,26,.72) !important;
+      backdrop-filter: blur(16px);
+    }
+
+    .request-search-box > span,
+    .request-status-filter > span { color: var(--muted) !important; }
+
+    .request-search-box input,
+    .request-status-filter select {
+      background: rgba(0,0,0,.45) !important;
+      border: 1px solid rgba(255,255,255,.12) !important;
+      color: var(--text) !important;
+      box-shadow: none !important;
+    }
+
+    .request-search-box input:focus,
+    .request-status-filter select:focus {
+      border-color: rgba(247,147,26,.72) !important;
+      box-shadow: 0 0 22px -12px rgba(247,147,26,.80) !important;
+    }
+
+    .request-status-filter select option { background: #111318; color: #fff; }
+
+    .request-records-table-wrap {
+      scrollbar-color: rgba(247,147,26,.78) rgba(255,255,255,.05) !important;
+    }
+    .request-records-table-wrap::-webkit-scrollbar-track { background: rgba(255,255,255,.05) !important; }
+    .request-records-table-wrap::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #F7931A, #EA580C) !important;
+    }
+
+    .request-records-table { color: var(--text) !important; }
+    .request-records-table thead th {
+      background: rgba(20,22,28,.98) !important;
+      color: var(--muted) !important;
+      border-right-color: rgba(255,255,255,.08) !important;
+      border-bottom: 1px solid rgba(247,147,26,.18) !important;
+      font-family: var(--font-mono) !important;
+      font-size: 9px !important;
+      letter-spacing: .08em !important;
+      text-transform: uppercase !important;
+    }
+
+    .request-records-table tbody tr,
+    .request-records-table tbody tr:nth-child(even) { background: transparent !important; }
+    .request-records-table tbody tr:hover { background: rgba(247,147,26,.055) !important; }
+    .request-records-table tbody td {
+      color: #e8edf5 !important;
+      border-right-color: rgba(255,255,255,.07) !important;
+      border-bottom-color: rgba(255,255,255,.07) !important;
+    }
+
+    .integrated-table-cell.strong,
+    .request-cell-branch { color: var(--text) !important; }
+    .integrated-table-cell.muted,
+    .request-cell-notes.empty { color: var(--muted) !important; }
+    .integrated-table-cell.price { color: var(--gold) !important; }
+    .request-cell-email { color: #d6deea !important; }
+
+    .request-table-status {
+      background: rgba(247,147,26,.08) !important;
+      border-color: rgba(247,147,26,.42) !important;
+      color: var(--gold) !important;
+    }
+    .request-table-status option { background: #111318; color: #fff; }
+    .request-status-badge.printed { background: rgba(34,197,94,.14) !important; color: #86efac !important; }
+    .request-status-badge.pending { background: rgba(249,115,22,.14) !important; color: #fdba74 !important; }
+    .request-status-badge.progress { background: rgba(59,130,246,.14) !important; color: #93c5fd !important; }
+    .request-status-badge.other { background: rgba(148,163,184,.12) !important; color: var(--muted) !important; }
+    .request-records-empty { color: var(--muted) !important; }
+
+    .record-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    .record-icon-button {
+      width: 31px;
+      height: 31px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 50%;
+      background: rgba(255,255,255,.045);
+      color: var(--muted);
+      cursor: pointer;
+      transition: transform .16s, color .16s, border-color .16s, background .16s, box-shadow .16s;
+    }
+
+    .record-icon-button:hover {
+      transform: translateY(-1px);
+      color: var(--gold);
+      border-color: rgba(255,214,0,.48);
+      background: rgba(255,214,0,.08);
+      box-shadow: 0 0 20px -10px rgba(255,214,0,.82);
+    }
+
+    .record-icon-button.delete:hover {
+      color: #fb923c;
+      border-color: rgba(249,115,22,.60);
+      background: rgba(249,115,22,.10);
+      box-shadow: 0 0 20px -10px rgba(249,115,22,.82);
+    }
+
+    .sheet-management-modal-box {
+      width: min(780px, 96vw) !important;
+      max-height: min(88vh, 900px);
+      overflow: auto;
+    }
+
+    .sheet-management-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 13px;
+      max-height: 62vh;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .sheet-management-field.full { grid-column: 1 / -1; }
+    .sheet-management-field .admin-field-label { margin-top: 0; }
+    .sheet-management-field textarea.admin-input { min-height: 92px; resize: vertical; line-height: 1.45; }
+    .sheet-management-field select.admin-input option { background: #111318; color: #fff; }
+
+    @media (max-width: 760px) {
+      .sheet-management-fields { grid-template-columns: 1fr; }
+      .sheet-management-field.full { grid-column: auto; }
+      .request-records-content { padding: 9px !important; }
+    }
+
+    @media print {
+      .topbar-icon-button,
+      .sheet-add-button,
+      .record-icon-button,
+      #sheetManagementModal { display: none !important; }
+    }
+
+  
+
+    
+    .sheet-add-button {
+      width: 40px !important;
+      min-width: 40px !important;
+      height: 40px !important;
+      min-height: 40px !important;
+      padding: 5px !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .sheet-add-button img {
+      width: 28px;
+      height: 28px;
+      display: block;
+      object-fit: contain;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    
+    .request-records-page {
+      width: 100vw !important;
+      max-width: none !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+    }
+
+    .request-records-main,
+    .request-records-content {
+      width: 100% !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+    }
+
+    
+    .request-records-table-wrap {
+      width: 100% !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      overflow-x: scroll !important;
+      overflow-y: scroll !important;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable both-edges;
+      scrollbar-width: thin;
+      scrollbar-color: #F7931A rgba(255,255,255,.06) !important;
+    }
+
+    .request-records-table-wrap::-webkit-scrollbar {
+      width: 10px !important;
+      height: 10px !important;
+    }
+
+    .request-records-table-wrap::-webkit-scrollbar-track {
+      background: rgba(255,255,255,.06) !important;
+      border-radius: 999px;
+    }
+
+    .request-records-table-wrap::-webkit-scrollbar-thumb {
+      min-height: 42px;
+      border: 2px solid rgba(3,3,4,.72);
+      border-radius: 999px;
+      background: linear-gradient(180deg, #FFD600, #F7931A, #EA580C) !important;
+      box-shadow: 0 0 12px rgba(247,147,26,.35);
+    }
+
+    .request-records-table-wrap::-webkit-scrollbar-corner {
+      background: rgba(15,17,21,.96);
+    }
+
   </style>
 </head>
 <body>
@@ -2788,41 +3622,6 @@
     <div class="topbar-logo" id="generatorTitle"><img src="logo.png" alt="Logo" class="topbar-logo-img"><span>Price Tag Generator</span></div>
 
     <div class="topbar-right">
-      <div class="special-note-wrap" id="specialNoteWrap">
-        <button
-          type="button"
-          class="special-note-button"
-          id="specialNoteButton"
-          aria-label="Special request notes"
-          aria-haspopup="true"
-          aria-expanded="false"
-          title="Special request notes">
-          <img src="data:image/png;base64,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" alt="" aria-hidden="true">
-          <span class="notification-count" id="specialNoteCount">0</span>
-        </button>
-
-        <div class="notification-dropdown special-note-dropdown" id="specialNoteDropdown" role="dialog" aria-label="Special request notes">
-          <div class="notification-head">
-            <div>
-              <div class="notification-title">Special Request Notes</div>
-              <span class="notification-summary" id="specialNoteSummary">Checking Google Sheet…</span>
-            </div>
-            <button type="button" class="notification-refresh" id="specialNoteRefresh" aria-label="Refresh special request notes" title="Refresh">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
-          <div class="notification-list" id="specialNoteList">
-            <div class="notification-state">
-              <div class="notification-state-icon">📝</div>
-              <div>Loading special request notes…</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="notification-wrap" id="notificationWrap">
         <button
           type="button"
@@ -2860,27 +3659,99 @@
         </div>
       </div>
 
-      <div class="topbar-sub">Admin · Print Tool</div>
+      <nav class="integrated-nav-actions" aria-label="Google Sheet pages">
+        <button type="button" class="integrated-nav-button" data-sheet-page="products"
+                onclick="openIntegratedSheetPage('products')" title="Products">
+          <img src="icons/Products.gif" alt="Products"><span>Products</span>
+        </button>
+        <button type="button" class="integrated-nav-button" data-sheet-page="requests"
+                onclick="openIntegratedSheetPage('requests')" title="Request">
+          <img src="icons/Request.gif" alt="Request"><span>Request</span>
+        </button>
+        <button type="button" class="integrated-nav-button" data-sheet-page="branches"
+                onclick="openIntegratedSheetPage('branches')" title="Branches">
+          <img src="icons/Branches.gif" alt="Branches"><span>Branches</span>
+        </button>
+        <button type="button" class="integrated-nav-button" data-sheet-page="holidays"
+                onclick="openIntegratedSheetPage('holidays')" title="Holidays">
+          <img src="icons/Holidays.gif" alt="Holidays"><span>Holidays</span>
+        </button>
+      </nav>
 
       <div class="topbar-print-actions">
-        <button class="btn btn-ghost" onclick="clearAll()">Clear All</button>
-        <button class="btn btn-primary" id="pdfBtn" onclick="window.print()" disabled>
-          🖨 Generate PDF
+        <button class="topbar-icon-button clear-all-button" type="button" onclick="clearAll()" title="Clear all selected items" aria-label="Clear all selected items">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="btn btn-primary print-gif-button" id="pdfBtn" onclick="handlePrintAction()" disabled title="Print price tags">
+          <img class="print-icon-gif" src="icons/Print.gif" alt="Print"><span>Print</span>
         </button>
       </div>
     </div>
-
     <div class="topbar-actions">
       <button class="reset-bg-btn" id="resetBgBtn" onclick="resetBackground()" style="display:none;">Reset Template</button>
       <label for="bgUploadInput" class="upload-bg-btn">📤 Upload Template</label>
       <input type="file" id="bgUploadInput" accept="image/*" onchange="handleBackgroundUpload(event)">
     </div>
   </div>
+
   
-  <!-- Auto-load banner -->
+  <section id="sheetRecordsPage" class="request-records-page" aria-hidden="true">
+    <div class="request-records-main">
+      <header class="request-records-header">
+        <div class="request-records-title-wrap">
+          <span class="request-records-title-dot"></span>
+          <div>
+            <h1 id="sheetRecordsTitle">Google Sheet Data</h1>
+            <p id="sheetRecordsSubtitle">Integrated in Price Tag Generator</p>
+          </div>
+        </div>
+        <div class="request-header-actions">
+          <button type="button" class="request-toolbar-button" onclick="loadIntegratedSheetPage(currentIntegratedPage, true)">↻ Refresh</button>
+          <button type="button" class="sheet-add-button" id="sheetAddRecordButton" onclick="openAddIntegratedRecord()" title="Add record" aria-label="Add record" style="display:none;">
+            <img src="icons/Add.gif" alt="" aria-hidden="true">
+          </button>
+          <span class="request-record-count" id="sheetRecordCount">0 record(s)</span>
+        </div>
+      </header>
+
+      <div class="request-records-content">
+        <div class="request-records-toolbar">
+          <label class="request-search-box">
+            <span>SEARCH</span>
+            <input id="sheetRecordsSearch" type="search"
+                   placeholder="Search records"
+                   oninput="renderIntegratedSheetPage()">
+          </label>
+
+          <label class="request-status-filter" id="requestStatusFilterWrap" style="display:none;">
+            <span>STATUS</span>
+            <select id="requestStatusFilter" onchange="renderIntegratedSheetPage()">
+              <option value="ALL">All statuses</option>
+              <option value="PENDING">Pending</option>
+              <option value="PRINTED">Printed</option>
+              <option value="IN PROGRESS">In Progress</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="request-records-table-wrap">
+          <table class="request-records-table" id="sheetRecordsTable">
+            <thead id="sheetRecordsHead"></thead>
+            <tbody id="sheetRecordsBody">
+              <tr><td class="request-records-empty">Select Products, Request, Branches, or Holidays.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
   <div id="autoLoadBanner" style="display:none;"></div>
 
-  <!-- Request details banner shown when opened from the Google Sheets sidebar -->
+ 
   <div id="requestBanner" class="request-banner">
     <div class="request-branch-wrap">
       <strong id="rbBranch">—</strong>
@@ -2894,7 +3765,7 @@
   </div>
 
 
-  <!-- Admin login modal for protected price editing -->
+  
   <div id="adminLoginModal" class="admin-modal-overlay" aria-hidden="true">
     <div class="admin-modal-box">
       <div class="admin-modal-title">Admin Login Required</div>
@@ -2929,6 +3800,21 @@
       <div class="admin-modal-actions">
         <button class="btn btn-ghost" type="button" onclick="closePriceEditModal()">Cancel</button>
         <button class="btn btn-primary" type="button" onclick="saveEditedPrice()">Save Price</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Integrated Google Sheet record editor -->
+  <div id="sheetManagementModal" class="admin-modal-overlay" aria-hidden="true">
+    <div class="admin-modal-box sheet-management-modal-box">
+      <div class="admin-modal-title" id="sheetManagementTitle">Edit Record</div>
+      <div class="admin-modal-subtitle" id="sheetManagementSubtitle">Changes are saved directly to Google Sheets.</div>
+      <div class="sheet-management-fields" id="sheetManagementFields"></div>
+      <div class="admin-error" id="sheetManagementError"></div>
+      <div class="admin-modal-actions">
+        <button class="btn btn-ghost" type="button" onclick="closeSheetManagementModal()">Cancel</button>
+        <button class="btn btn-primary" type="button" id="sheetManagementSaveButton" onclick="saveSheetManagementRecord()">Save</button>
       </div>
     </div>
   </div>
@@ -3020,6 +3906,10 @@
     let adminLoggedIn = sessionStorage.getItem('priceTagAdminLoggedIn') === '1';
     let pendingEditKey = '';
     let activeEditKey = '';
+    let pendingAdminAction = null;
+    let activeManagementType = '';
+    let activeManagementMode = '';
+    let activeManagementRow = 0;
     let pendingNotificationLoading = false;
     let pendingNotificationTimer = null;
     let latestPendingRequests = [];
@@ -3033,6 +3923,8 @@
       }
     }
 
+    let autoLoadBannerTimer = null;
+
     function showAutoLoadBanner(message, type = 'info') {
       const banner = document.getElementById('autoLoadBanner');
       if (!banner) return;
@@ -3044,10 +3936,26 @@
         warn:    ['#fff3cd', '#f0d080', '#856404']
       }[type] || ['#fff3cd', '#f0d080', '#856404'];
 
+      if (autoLoadBannerTimer) {
+        clearTimeout(autoLoadBannerTimer);
+        autoLoadBannerTimer = null;
+      }
+
       banner.style.display = 'block';
+      banner.style.opacity = '1';
       banner.style.background = styles[0];
       banner.style.borderBottom = '2px solid ' + styles[1];
       banner.innerHTML = '<div style="color:' + styles[2] + ';font-size:13px;font-weight:600;">' + message + '</div>';
+
+      autoLoadBannerTimer = setTimeout(() => {
+        banner.style.opacity = '0';
+
+        setTimeout(() => {
+          banner.style.display = 'none';
+          banner.innerHTML = '';
+          banner.style.opacity = '1';
+        }, 300);
+      }, 2000);
     }
 
 
@@ -3055,7 +3963,7 @@
       if (!value) return '';
       const text = String(value).trim();
 
-      // Handles values like: Mon Jun 08 2026 00:00:00 GMT+0400 (Gulf Standard Time)
+      
       const parsed = new Date(text);
       if (!isNaN(parsed.getTime())) {
         return parsed.toLocaleDateString('en-GB', {
@@ -3065,7 +3973,7 @@
         });
       }
 
-      // Handles values like: 2026-06-08 or 6/8/2026
+      
       return text
         .replace(/\s+00:00:00.*$/i, '')
         .replace(/\s+GMT.*$/i, '')
@@ -3372,9 +4280,6 @@
       const wrap = document.getElementById('notificationWrap');
       const bell = document.getElementById('notificationBell');
       const refresh = document.getElementById('notificationRefresh');
-      const noteWrap = document.getElementById('specialNoteWrap');
-      const noteButton = document.getElementById('specialNoteButton');
-      const noteRefresh = document.getElementById('specialNoteRefresh');
 
       if (!wrap || !bell) return;
 
@@ -3382,21 +4287,10 @@
         event.stopPropagation();
         const dropdown = document.getElementById('notificationDropdown');
         const willOpen = dropdown && !dropdown.classList.contains('open');
-        setSpecialNoteDropdownOpen(false);
         setNotificationDropdownOpen(Boolean(willOpen));
         if (willOpen) loadPendingNotifications(false);
       });
 
-      if (noteButton && noteWrap) {
-        noteButton.addEventListener('click', event => {
-          event.stopPropagation();
-          const dropdown = document.getElementById('specialNoteDropdown');
-          const willOpen = dropdown && !dropdown.classList.contains('open');
-          setNotificationDropdownOpen(false);
-          setSpecialNoteDropdownOpen(Boolean(willOpen));
-          if (willOpen) loadPendingNotifications(false);
-        });
-      }
 
       if (refresh) {
         refresh.addEventListener('click', event => {
@@ -3405,27 +4299,14 @@
         });
       }
 
-      if (noteRefresh) {
-        noteRefresh.addEventListener('click', event => {
-          event.stopPropagation();
-          loadPendingNotifications(true);
-        });
-      }
-
       document.addEventListener('click', event => {
-        const clickedBellArea = wrap.contains(event.target);
-        const clickedNoteArea = noteWrap && noteWrap.contains(event.target);
-
-        if (!clickedBellArea && !clickedNoteArea) {
-          setNotificationDropdownOpen(false);
-          setSpecialNoteDropdownOpen(false);
-        }
+        if (!wrap.contains(event.target)) setNotificationDropdownOpen(false);
       });
 
       document.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
           setNotificationDropdownOpen(false);
-          setSpecialNoteDropdownOpen(false);
+          if (document.body.classList.contains('integrated-sheet-open')) closeIntegratedSheetPage();
         }
       });
 
@@ -3435,8 +4316,12 @@
       pendingNotificationTimer = setInterval(() => loadPendingNotifications(false), 45000);
 
       document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) loadPendingNotifications(false);
+        if (!document.hidden) {
+          loadPendingNotifications(false);
+          if (document.body.classList.contains('integrated-sheet-open') && currentIntegratedPage) loadIntegratedSheetPage(currentIntegratedPage, false);
+        }
       });
+
     }
 
 
@@ -3722,6 +4607,637 @@
     }
 
 
+    // ── Integrated Google Sheet pages ─────────────────────
+    const INTEGRATED_PAGE_CONFIG = {
+      products: {
+        title: 'Products',
+        subtitle: 'Google Sheet tab: Products',
+        action: 'getProducts',
+        tableClass: 'products-table',
+        searchPlaceholder: 'Search product name, Arabic name, description, price, weight, allergen, or category'
+      },
+      requests: {
+        title: 'Price Tag Requests',
+        subtitle: 'Google Sheet tab: Requests',
+        action: 'getRequests',
+        tableClass: 'requests-table',
+        searchPlaceholder: 'Search timestamp, email, branch, item, note, or status'
+      },
+      branches: {
+        title: 'Branches',
+        subtitle: 'Google Sheet tab: Branches',
+        action: 'getBranchRecords',
+        tableClass: 'branches-table',
+        searchPlaceholder: 'Search branch name'
+      },
+      holidays: {
+        title: 'Holidays',
+        subtitle: 'Google Sheet tab: Holidays',
+        action: 'getHolidayRecords',
+        tableClass: 'holidays-table',
+        searchPlaceholder: 'Search holiday, date, or emoji'
+      }
+    };
+
+    let currentIntegratedPage = '';
+    const integratedPageLoading = { products: false, requests: false, branches: false, holidays: false };
+    const integratedPageData = {
+      products: [],
+      requests: [],
+      branches: [],
+      holidays: []
+    };
+
+    function syncIntegratedPageTop() {
+      const page = document.getElementById('sheetRecordsPage');
+      const topbar = document.querySelector('.topbar');
+      if (!page || !topbar) return;
+      page.style.top = Math.max(0, Math.round(topbar.getBoundingClientRect().bottom)) + 'px';
+    }
+
+    function setIntegratedNavActive(type) {
+      document.querySelectorAll('.integrated-nav-button[data-sheet-page]').forEach(button => {
+        button.classList.toggle('active', button.dataset.sheetPage === type);
+      });
+    }
+
+    function openIntegratedSheetPage(type) {
+      type = String(type || '').toLowerCase();
+      const config = INTEGRATED_PAGE_CONFIG[type];
+      const page = document.getElementById('sheetRecordsPage');
+      if (!config || !page) return;
+
+      currentIntegratedPage = type;
+      setNotificationDropdownOpen(false);
+      syncIntegratedPageTop();
+      page.classList.add('open');
+      page.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('integrated-sheet-open');
+      setIntegratedNavActive(type);
+
+      const title = document.getElementById('sheetRecordsTitle');
+      const subtitle = document.getElementById('sheetRecordsSubtitle');
+      const search = document.getElementById('sheetRecordsSearch');
+      const statusWrap = document.getElementById('requestStatusFilterWrap');
+      const statusFilter = document.getElementById('requestStatusFilter');
+
+      if (title) title.textContent = config.title;
+      if (subtitle) subtitle.textContent = config.subtitle;
+      if (search) {
+        search.placeholder = config.searchPlaceholder;
+        search.value = '';
+      }
+      if (statusWrap) statusWrap.style.display = type === 'requests' ? '' : 'none';
+      if (statusFilter && type === 'requests') statusFilter.value = 'ALL';
+      const addButton = document.getElementById('sheetAddRecordButton');
+      if (addButton) {
+        addButton.style.display = (type === 'products' || type === 'branches' || type === 'holidays') ? 'inline-flex' : 'none';
+        addButton.title = type === 'products' ? 'Add product' : (type === 'branches' ? 'Add branch' : (type === 'holidays' ? 'Add holiday' : 'Add record'));
+        addButton.setAttribute('aria-label', addButton.title);
+      }
+
+      try { history.replaceState(null, '', window.location.pathname + window.location.search + '#' + type); } catch (e) {}
+      loadIntegratedSheetPage(type, integratedPageData[type].length === 0);
+    }
+
+    function closeIntegratedSheetPage() {
+      const page = document.getElementById('sheetRecordsPage');
+      if (!page) return;
+      page.classList.remove('open');
+      page.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('integrated-sheet-open');
+      setIntegratedNavActive('');
+      currentIntegratedPage = '';
+      try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) {}
+    }
+
+    function initIntegratedNavigation() {
+      const title = document.getElementById('generatorTitle');
+      if (title) {
+        title.setAttribute('title', 'Back to Price Tag Generator');
+        title.addEventListener('click', closeIntegratedSheetPage);
+      }
+
+      window.addEventListener('resize', syncIntegratedPageTop);
+      const hashPage = String(window.location.hash || '').replace('#', '').toLowerCase();
+      if (INTEGRATED_PAGE_CONFIG[hashPage]) setTimeout(() => openIntegratedSheetPage(hashPage), 0);
+    }
+
+    function handlePrintAction() {
+      if (document.body.classList.contains('integrated-sheet-open')) closeIntegratedSheetPage();
+      setTimeout(() => window.print(), 30);
+    }
+
+    function formatRequestTimestamp(value) {
+      if (!value) return '';
+      const parsed = new Date(String(value));
+      if (isNaN(parsed.getTime())) return String(value);
+      return parsed.toLocaleString('en-GB', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+      });
+    }
+
+    function loadIntegratedSheetPage(type, showLoading) {
+      type = String(type || currentIntegratedPage || '').toLowerCase();
+      const config = INTEGRATED_PAGE_CONFIG[type];
+      if (!config || integratedPageLoading[type]) return Promise.resolve();
+
+      integratedPageLoading[type] = true;
+      const body = document.getElementById('sheetRecordsBody');
+      if (showLoading && body) {
+        body.innerHTML = '<tr><td class="request-records-empty">Loading ' + html(config.title) + ' from Google Sheet…</td></tr>';
+      }
+
+      return apiCall(config.action)
+        .then(data => {
+          integratedPageData[type] = Array.isArray(data) ? data : [];
+          if (currentIntegratedPage === type) renderIntegratedSheetPage();
+        })
+        .catch(err => {
+          console.error('[INTEGRATED PAGE] Failed to load ' + type + ':', err);
+          if (body && currentIntegratedPage === type) {
+            body.innerHTML = '<tr><td class="request-records-empty">⚠ ' +
+              html(err && err.message ? err.message : 'Unable to load Google Sheet data.') + '</td></tr>';
+          }
+        })
+        .finally(() => { integratedPageLoading[type] = false; });
+    }
+
+    function getIntegratedSearchQuery() {
+      const input = document.getElementById('sheetRecordsSearch');
+      return String(input && input.value || '').trim().toLowerCase();
+    }
+
+    function getFilteredIntegratedRecords() {
+      const type = currentIntegratedPage;
+      const query = getIntegratedSearchQuery();
+      const records = integratedPageData[type] || [];
+
+      if (type === 'requests') {
+        const statusFilter = document.getElementById('requestStatusFilter');
+        const wantedStatus = String(statusFilter && statusFilter.value || 'ALL').trim().toUpperCase();
+        return records.filter(request => {
+          const status = String(request.status || '').trim().toUpperCase();
+          if (wantedStatus !== 'ALL' && status !== wantedStatus) return false;
+          if (!query) return true;
+          return [request.timestamp, request.email, request.dateRequested, request.branch,
+                  request.priceTagList, request.notes, request.status]
+            .join(' ').toLowerCase().includes(query);
+        });
+      }
+
+      if (!query) return records;
+
+      if (type === 'products') {
+        return records.filter(product => [
+          product.name, product.arabicName, product.descriptionEN, product.descriptionAR,
+          product.price, product.symbol, product.netWeightEN, product.netWeightAR,
+          product.allergensEN, product.allergensAR, product.category
+        ].join(' ').toLowerCase().includes(query));
+      }
+
+      if (type === 'branches') {
+        return records.filter(branch => String(typeof branch === 'string' ? branch : (branch.name || branch.branch || ''))
+          .toLowerCase().includes(query));
+      }
+
+      if (type === 'holidays') {
+        return records.filter(holiday => [holiday.name, holiday.date, holiday.emoji]
+          .join(' ').toLowerCase().includes(query));
+      }
+
+      return records;
+    }
+
+    function setIntegratedTableHeader(columns, tableClass) {
+      const head = document.getElementById('sheetRecordsHead');
+      const table = document.getElementById('sheetRecordsTable');
+      if (table) table.className = 'request-records-table ' + (tableClass || '');
+      if (head) head.innerHTML = '<tr>' + columns.map(column => '<th>' + html(column) + '</th>').join('') + '</tr>';
+    }
+
+    function requestStatusBadge(status) {
+      const normalized = String(status || '').trim().toUpperCase();
+      let statusClass = 'other';
+      if (normalized === 'PRINTED') statusClass = 'printed';
+      else if (normalized === 'PENDING') statusClass = 'pending';
+      else if (normalized === 'IN PROGRESS') statusClass = 'progress';
+      return '<span class="request-status-badge ' + statusClass + '">' + html(normalized || 'BLANK') + '</span>';
+    }
+
+    function recordActionButtons(type, row, canDelete) {
+      const safeType = html(type);
+      const safeRow = parseInt(row, 10) || 0;
+      return '<span class="record-actions">' +
+        '<button type="button" class="record-icon-button" onclick="openEditIntegratedRecord(\'' + safeType + '\',' + safeRow + ')" title="Edit" aria-label="Edit">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>' +
+        '</button>' +
+        (canDelete ? '<button type="button" class="record-icon-button delete" onclick="deleteIntegratedRecord(\'' + safeType + '\',' + safeRow + ')" title="Delete" aria-label="Delete">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m-9 0 1 15h8l1-15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</button>' : '') + '</span>';
+    }
+
+    function renderIntegratedSheetPage() {
+      const type = currentIntegratedPage;
+      const config = INTEGRATED_PAGE_CONFIG[type];
+      const body = document.getElementById('sheetRecordsBody');
+      const count = document.getElementById('sheetRecordCount');
+      if (!config || !body) return;
+
+      const records = getFilteredIntegratedRecords();
+      if (count) count.textContent = records.length + ' record(s)';
+
+      if (type === 'products') {
+        setIntegratedTableHeader([
+          'Product Name', 'Arabic Name', 'DescriptionEN', 'DescriptionAR', 'Price', 'Symbol',
+          'Net WeightEN', 'Net WeightAR', 'AllergensEN', 'AllergensAR', 'Category', 'Actions'
+        ], config.tableClass);
+        if (!records.length) {
+          body.innerHTML = '<tr><td colspan="12" class="request-records-empty">No products match the search.</td></tr>';
+          return;
+        }
+        body.innerHTML = records.map(product => '<tr>' +
+          '<td class="integrated-table-cell strong">' + html(product.name || '—') + '</td>' +
+          '<td class="integrated-table-cell arabic">' + html(product.arabicName || '—') + '</td>' +
+          '<td class="integrated-table-cell">' + html(product.descriptionEN || '—') + '</td>' +
+          '<td class="integrated-table-cell arabic">' + html(product.descriptionAR || '—') + '</td>' +
+          '<td class="integrated-table-cell price">' + html(product.price || '—') + '</td>' +
+          '<td class="integrated-table-cell">' + html(product.symbol || '—') + '</td>' +
+          '<td class="integrated-table-cell">' + html(product.netWeightEN || '—') + '</td>' +
+          '<td class="integrated-table-cell arabic">' + html(product.netWeightAR || '—') + '</td>' +
+          '<td class="integrated-table-cell">' + html(product.allergensEN || '—') + '</td>' +
+          '<td class="integrated-table-cell arabic">' + html(product.allergensAR || '—') + '</td>' +
+          '<td class="integrated-table-cell strong">' + html(product.category || '—') + '</td>' +
+          '<td>' + recordActionButtons('products', product.rowNumber, true) + '</td>' +
+        '</tr>').join('');
+        return;
+      }
+
+      if (type === 'requests') {
+        setIntegratedTableHeader(['Timestamp', 'Email', 'Date Requested', 'Branch', 'List of Price Tags', 'Notes', 'Status', 'Actions'], config.tableClass);
+        if (!records.length) {
+          body.innerHTML = '<tr><td colspan="8" class="request-records-empty">No request records match the selected filter.</td></tr>';
+          return;
+        }
+        body.innerHTML = records.map(request => {
+          const row = parseInt(request.row, 10) || 0;
+          const status = String(request.status || '').trim().toUpperCase();
+          const branch = String(request.branch || '').trim();
+          const notes = String(request.notes || '').trim();
+          const statuses = ['PENDING', 'IN PROGRESS', 'PRINTED'];
+          const statusControl = '<select class="request-table-status" data-row="' + row + '" data-branch="' + html(branch) +
+            '" data-original-status="' + html(status) + '" onchange="changeRequestRecordStatus(event)" aria-label="Change request status">' +
+            statuses.map(item => '<option value="' + item + '"' + (item === status ? ' selected' : '') + '>' + item + '</option>').join('') +
+            '</select>';
+
+          return '<tr class="request-record-row" id="requestRecordRow-' + row + '">' +
+            '<td class="request-cell-mono">' + html(formatRequestTimestamp(request.timestamp)) + '</td>' +
+            '<td class="request-cell-email">' + html(request.email || '—') + '</td>' +
+            '<td class="request-cell-mono">' + html(formatDateOnly(request.dateRequested || '')) + '</td>' +
+            '<td class="request-cell-branch">' + html(branch || '—') + '</td>' +
+            '<td class="request-cell-list">' + html(request.priceTagList || '—') + '</td>' +
+            '<td class="request-cell-notes' + (notes ? '' : ' empty') + '">' + html(notes || 'No special request note') + '</td>' +
+            '<td>' + statusControl + '</td>' +
+            '<td>' + recordActionButtons('requests', row, false) + '</td></tr>';
+        }).join('');
+        return;
+      }
+
+      if (type === 'branches') {
+        setIntegratedTableHeader(['Branch Name', 'Actions'], config.tableClass);
+        if (!records.length) {
+          body.innerHTML = '<tr><td colspan="2" class="request-records-empty">No branches match the search.</td></tr>';
+          return;
+        }
+        body.innerHTML = records.map(branch => {
+          const name = typeof branch === 'string' ? branch : (branch.name || branch.branch || '');
+          const row = typeof branch === 'string' ? 0 : (parseInt(branch.row, 10) || 0);
+          return '<tr><td class="integrated-table-cell strong">' + html(name || '—') + '</td>' +
+            '<td>' + recordActionButtons('branches', row, true) + '</td></tr>';
+        }).join('');
+        return;
+      }
+
+      if (type === 'holidays') {
+        setIntegratedTableHeader(['Name', 'Date', 'Emoji', 'Actions'], config.tableClass);
+        if (!records.length) {
+          body.innerHTML = '<tr><td colspan="4" class="request-records-empty">No holidays match the search.</td></tr>';
+          return;
+        }
+        body.innerHTML = records.map(holiday => '<tr>' +
+          '<td class="integrated-table-cell strong">' + html(holiday.name || '—') + '</td>' +
+          '<td class="integrated-table-cell">' + html(formatDateOnly(holiday.date || '')) + '</td>' +
+          '<td class="integrated-table-cell" style="font-size:20px;">' + html(holiday.emoji || '—') + '</td>' +
+          '<td>' + recordActionButtons('holidays', holiday.row, true) + '</td>' +
+        '</tr>').join('');
+      }
+    }
+
+    function changeRequestRecordStatus(event) {
+      event.stopPropagation();
+      const select = event.currentTarget;
+      const row = parseInt(select.dataset.row || '0', 10);
+      const branch = select.dataset.branch || 'this branch';
+      const oldStatus = String(select.dataset.originalStatus || '').trim().toUpperCase();
+      const newStatus = String(select.value || '').trim().toUpperCase();
+      const recordRow = document.getElementById('requestRecordRow-' + row);
+      const allowed = ['PENDING', 'IN PROGRESS', 'PRINTED'];
+
+      if (!row || !allowed.includes(newStatus)) {
+        select.value = oldStatus || 'PENDING';
+        return;
+      }
+
+      if (newStatus === oldStatus) return;
+
+      const printedWarning = newStatus === 'PRINTED'
+        ? '\n\nThe printed-completion email will be sent if it has not already been sent.'
+        : '';
+      const confirmed = window.confirm(
+        'Change the request from "' + branch + '" to ' + newStatus + '?' + printedWarning
+      );
+      if (!confirmed) {
+        select.value = oldStatus || 'PENDING';
+        return;
+      }
+
+      select.disabled = true;
+      if (recordRow) recordRow.classList.add('updating');
+
+      apiCall('updateRequestStatus', { row: row, status: newStatus })
+        .then(result => {
+          const emailFailed = result && result.emailError && !result.emailSent;
+          showAutoLoadBanner(
+            emailFailed
+              ? '✓ ' + branch + ' changed to ' + newStatus + ', but the completion email failed: ' + result.emailError
+              : '✓ ' + branch + ' changed to ' + newStatus,
+            emailFailed ? 'warn' : 'success'
+          );
+          return Promise.all([
+            loadIntegratedSheetPage('requests', false),
+            loadPendingNotifications(false)
+          ]);
+        })
+        .catch(err => {
+          console.error('[REQUEST RECORDS] Status update failed:', err);
+          select.value = oldStatus || 'PENDING';
+          select.disabled = false;
+          if (recordRow) recordRow.classList.remove('updating');
+          window.alert('Could not change the request status: ' + (err && err.message ? err.message : err));
+        });
+    }
+
+    function requireAdminForManagement(action) {
+      if (adminLoggedIn) {
+        action();
+        return;
+      }
+      pendingAdminAction = action;
+      pendingEditKey = '';
+      openAdminLoginModal();
+    }
+
+    const MANAGEMENT_FIELDS = {
+      products: [
+        { key: 'name', label: 'Product Name', required: true },
+        { key: 'arabicName', label: 'Arabic Name', rtl: true },
+        { key: 'descriptionEN', label: 'Description EN', textarea: true, full: true },
+        { key: 'descriptionAR', label: 'Description AR', textarea: true, rtl: true, full: true },
+        { key: 'price', label: 'Price', type: 'number', step: '0.01', required: true },
+        { key: 'symbol', label: 'Symbol' },
+        { key: 'netWeightEN', label: 'Net Weight EN' },
+        { key: 'netWeightAR', label: 'Net Weight AR', rtl: true },
+        { key: 'allergensEN', label: 'Allergens EN', textarea: true, full: true },
+        { key: 'allergensAR', label: 'Allergens AR', textarea: true, rtl: true, full: true },
+        {
+          key: 'category',
+          label: 'Category',
+          select: ['CAKE', 'BAKERY', 'PASTRY', 'SSMM', 'CHOCOLATES'],
+          placeholder: '— Select category —',
+          required: true
+        }
+      ],
+      requests: [
+        { key: 'email', label: 'Email', type: 'email', required: true },
+        { key: 'dateRequested', label: 'Date Requested', type: 'date', required: true },
+        { key: 'branch', label: 'Branch', required: true },
+        { key: 'priceTagList', label: 'List of Price Tags', textarea: true, full: true, required: true },
+        { key: 'notes', label: 'Notes', textarea: true, full: true },
+        { key: 'status', label: 'Status', select: ['PENDING', 'IN PROGRESS', 'PRINTED'], required: true }
+      ],
+      branches: [
+        { key: 'name', label: 'Branch Name', required: true, full: true }
+      ],
+      holidays: [
+        { key: 'name', label: 'Holiday Name', required: true, full: true },
+        { key: 'date', label: 'Date / Date Range', required: true },
+        { key: 'emoji', label: 'Emoji' }
+      ]
+    };
+
+    function normalizeDateForInput(value) {
+      if (!value) return '';
+      const text = String(value).trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+      const parsed = new Date(text);
+      if (isNaN(parsed.getTime())) return '';
+      const y = parsed.getFullYear();
+      const m = String(parsed.getMonth() + 1).padStart(2, '0');
+      const d = String(parsed.getDate()).padStart(2, '0');
+      return y + '-' + m + '-' + d;
+    }
+
+    function findIntegratedRecord(type, row) {
+      const records = integratedPageData[type] || [];
+      row = parseInt(row, 10) || 0;
+      if (type === 'products') return records.find(item => parseInt(item.rowNumber, 10) === row) || null;
+      return records.find(item => parseInt(item.row, 10) === row) || null;
+    }
+
+    function openAddIntegratedRecord() {
+      const type = currentIntegratedPage;
+      if (type !== 'products' && type !== 'branches' && type !== 'holidays') return;
+      requireAdminForManagement(() => openSheetManagementModal(type, 'add', 0));
+    }
+
+    function openEditIntegratedRecord(type, row) {
+      if (!row) return;
+      requireAdminForManagement(() => openSheetManagementModal(type, 'edit', row));
+    }
+
+    function openSheetManagementModal(type, mode, row) {
+      const fields = MANAGEMENT_FIELDS[type];
+      const modal = document.getElementById('sheetManagementModal');
+      if (!fields || !modal) return;
+
+      activeManagementType = type;
+      activeManagementMode = mode;
+      activeManagementRow = parseInt(row, 10) || 0;
+      const record = mode === 'edit' ? (findIntegratedRecord(type, activeManagementRow) || {}) : {};
+
+      const title = document.getElementById('sheetManagementTitle');
+      const subtitle = document.getElementById('sheetManagementSubtitle');
+      const fieldWrap = document.getElementById('sheetManagementFields');
+      const error = document.getElementById('sheetManagementError');
+      const labels = { products: 'Product', requests: 'Request', branches: 'Branch', holidays: 'Holiday' };
+      if (title) title.textContent = (mode === 'add' ? 'Add ' : 'Edit ') + (labels[type] || 'Record');
+      if (subtitle) subtitle.textContent = 'Changes are saved directly to the Google Sheet tab.';
+      if (error) { error.style.display = 'none'; error.textContent = ''; }
+
+      fieldWrap.innerHTML = fields.map(field => {
+        let value = record[field.key] == null ? '' : String(record[field.key]);
+        if (field.type === 'date') value = normalizeDateForInput(value);
+        const id = 'managementField_' + field.key;
+        const cls = 'sheet-management-field' + (field.full ? ' full' : '');
+        const direction = field.rtl ? ' dir="rtl" style="text-align:right;"' : '';
+        let control = '';
+        if (field.select) {
+          const currentValue = value.toUpperCase();
+          const selectOptions = field.select.slice();
+
+          // Preserve an existing Google Sheet category even if it is not yet
+          // included in the standard dropdown choices.
+          if (currentValue && !selectOptions.includes(currentValue)) {
+            selectOptions.unshift(currentValue);
+          }
+
+          const placeholderOption = field.placeholder
+            ? '<option value=""' + (!currentValue ? ' selected' : '') + ' disabled>' +
+                html(field.placeholder) +
+              '</option>'
+            : '';
+
+          control = '<select class="admin-input" id="' + id + '"' + (field.required ? ' required' : '') + '>' +
+            placeholderOption +
+            selectOptions.map(option =>
+              '<option value="' + html(option) + '"' +
+              (option === currentValue ? ' selected' : '') +
+              '>' + html(option) + '</option>'
+            ).join('') +
+            '</select>';
+        } else if (field.textarea) {
+          control = '<textarea class="admin-input" id="' + id + '"' + direction + (field.required ? ' required' : '') + '>' + html(value) + '</textarea>';
+        } else {
+          control = '<input class="admin-input" id="' + id + '" type="' + html(field.type || 'text') + '"' +
+            (field.step ? ' step="' + html(field.step) + '"' : '') + direction +
+            (field.required ? ' required' : '') + ' value="' + html(value) + '">';
+        }
+        return '<div class="' + cls + '"><label class="admin-field-label" for="' + id + '">' + html(field.label) + (field.required ? ' *' : '') + '</label>' + control + '</div>';
+      }).join('');
+
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      setTimeout(() => {
+        const first = fieldWrap.querySelector('input, textarea, select');
+        if (first) first.focus();
+      }, 40);
+    }
+
+    function closeSheetManagementModal() {
+      const modal = document.getElementById('sheetManagementModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+      activeManagementType = '';
+      activeManagementMode = '';
+      activeManagementRow = 0;
+    }
+
+    function getManagementPayload() {
+      const fields = MANAGEMENT_FIELDS[activeManagementType] || [];
+      const payload = {};
+      for (const field of fields) {
+        const element = document.getElementById('managementField_' + field.key);
+        const value = String(element && element.value || '').trim();
+        if (field.required && !value) throw new Error(field.label + ' is required.');
+        payload[field.key] = value;
+      }
+      return payload;
+    }
+
+    function mutationActionFor(type, mode) {
+      if (type === 'products') return mode === 'add' ? 'addProduct' : 'updateProduct';
+      if (type === 'requests') return mode === 'edit' ? 'updateRequestRecord' : '';
+      if (type === 'branches') return mode === 'add' ? 'addBranch' : 'updateBranch';
+      if (type === 'holidays') return mode === 'add' ? 'addHoliday' : 'updateHoliday';
+      return '';
+    }
+
+    function refreshAfterManagementChange(type) {
+      const jobs = [loadIntegratedSheetPage(type, false)];
+      if (type === 'products') {
+        jobs.push(apiCall('getProducts').then(data => {
+          allProducts = (data || []).map(normalizeProduct).filter(product => product.name);
+          renderProductList();
+        }));
+      }
+      if (type === 'branches') {
+        localStorage.removeItem('priceTagManualBranch');
+      }
+      if (type === 'requests') jobs.push(loadPendingNotifications(false));
+      return Promise.all(jobs);
+    }
+
+    function saveSheetManagementRecord() {
+      const error = document.getElementById('sheetManagementError');
+      const button = document.getElementById('sheetManagementSaveButton');
+      let payload;
+      try {
+        payload = getManagementPayload();
+      } catch (err) {
+        if (error) { error.textContent = err.message; error.style.display = 'block'; }
+        return;
+      }
+
+      const action = mutationActionFor(activeManagementType, activeManagementMode);
+      if (!action) return;
+      if (button) { button.disabled = true; button.textContent = 'Saving...'; }
+      if (error) { error.style.display = 'none'; error.textContent = ''; }
+
+      apiCall(action, {
+        row: activeManagementRow || '',
+        payload: JSON.stringify(payload)
+      })
+        .then(() => {
+          const type = activeManagementType;
+          closeSheetManagementModal();
+          showAutoLoadBanner('✓  Updated Successfully.', 'success');
+          return refreshAfterManagementChange(type);
+        })
+        .catch(err => {
+          if (error) {
+            error.textContent = err && err.message ? err.message : String(err);
+            error.style.display = 'block';
+          }
+        })
+        .finally(() => {
+          if (button) { button.disabled = false; button.textContent = 'Save'; }
+        });
+    }
+
+    function deleteIntegratedRecord(type, row) {
+      row = parseInt(row, 10) || 0;
+      if (!row) return;
+      const labels = { products: 'product', branches: 'branch', holidays: 'holiday' };
+      const actionMap = { products: 'deleteProduct', branches: 'deleteBranch', holidays: 'deleteHoliday' };
+      const action = actionMap[type];
+      if (!action) return;
+
+      requireAdminForManagement(() => {
+        if (!window.confirm('Delete this ' + (labels[type] || 'record') + '?\n\nThis change will be reflected in Google Sheets.')) return;
+        apiCall(action, { row: row })
+          .then(() => {
+            showAutoLoadBanner('✓ Record deleted from Google Sheet.', 'success');
+            return refreshAfterManagementChange(type);
+          })
+          .catch(err => window.alert('Could not delete the record: ' + (err && err.message ? err.message : err)));
+      });
+    }
+
+
     window.addEventListener('beforeprint', () => {
       const banner = document.getElementById('autoLoadBanner');
       if (banner) banner.style.display = 'none';
@@ -3746,6 +5262,7 @@
       document.getElementById('searchInput').addEventListener('input', renderProductList);
       initManualBranchSelector();
       initPendingNotifications();
+      initIntegratedNavigation();
 
       apiCall('getProducts')
         .then(data => {
@@ -4208,8 +5725,7 @@
 
     function fitAllPriceTags() {
       document.querySelectorAll('.price-tag').forEach(tag => {
-        /* Fixed sizes requested:
-           item name = 0.5cm, description = 0.3cm, price = 1cm */
+        
         fitTextToBox(tag.querySelector('.arabic-title'), 12);
         fitTextToBox(tag.querySelector('.desc-en'), 5);
         fitTextToBox(tag.querySelector('.desc-ar'), 5);
@@ -4258,6 +5774,7 @@
         modal.setAttribute('aria-hidden', 'true');
       }
       pendingEditKey = '';
+      pendingAdminAction = null;
     }
 
     function showAdminError(message) {
@@ -4299,8 +5816,11 @@
           }
 
           const keyToEdit = pendingEditKey;
+          const actionToRun = pendingAdminAction;
           pendingEditKey = '';
-          if (keyToEdit) showPriceEditModal(keyToEdit);
+          pendingAdminAction = null;
+          if (typeof actionToRun === 'function') actionToRun();
+          else if (keyToEdit) showPriceEditModal(keyToEdit);
         })
         .catch(err => {
           showAdminError(err.message || 'Admin login failed. Please try again.');
@@ -4384,7 +5904,7 @@
       }
     });
 
-    // ── Background Template Upload (Google Drive) ──────────
+    
     let customBackground = null;
 
     function handleBackgroundUpload(event) {
@@ -4443,7 +5963,7 @@
       btn.textContent = 'Deleting...';
       btn.disabled = true;
       
-      // Delete from Google Drive. This works only inside Apps Script, not GitHub Pages.
+      
       if (!window.google || !google.script || !google.script.run) {
         console.warn('Background template delete is disabled on GitHub Pages.');
         btn.disabled = false;
@@ -4467,7 +5987,7 @@
             btn.disabled = false;
             btn.textContent = 'Reset Template';
             
-            // Re-render to apply default colors
+           
             renderPreview();
           }
         })
@@ -4479,13 +5999,12 @@
         .deleteBackgroundTemplate();
     }
 
-    // Load saved background on page load
+    
     function loadSavedBackground() {
-      // Exact-template mode: keep the generated CSS template as the master background.
+      
       return;
     }
 
-    // Call load function when page is ready
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => loadSavedBackground(), 500);
     });
