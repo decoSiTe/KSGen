@@ -3641,7 +3641,7 @@
           <div class="notification-head">
             <div>
               <div class="notification-title">Pending Requests</div>
-              <span class="notification-summary" id="notificationSummary">Checking Google Sheet…</span>
+              <span class="notification-summary" id="notificationSummary">Checking…</span>
             </div>
             <button type="button" class="notification-refresh" id="notificationRefresh" aria-label="Refresh pending requests" title="Refresh">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -3809,7 +3809,7 @@
   <div id="sheetManagementModal" class="admin-modal-overlay" aria-hidden="true">
     <div class="admin-modal-box sheet-management-modal-box">
       <div class="admin-modal-title" id="sheetManagementTitle">Edit Record</div>
-      <div class="admin-modal-subtitle" id="sheetManagementSubtitle">Changes are saved directly to Google Sheets.</div>
+      <div class="admin-modal-subtitle" id="sheetManagementSubtitle">Changes are saved .</div>
       <div class="sheet-management-fields" id="sheetManagementFields"></div>
       <div class="admin-error" id="sheetManagementError"></div>
       <div class="admin-modal-actions">
@@ -4374,7 +4374,7 @@
         list.innerHTML = `
           <div class="notification-state">
             <div class="notification-state-icon">⏳</div>
-            <div>Checking Google Sheet…</div>
+            <div>Checking…</div>
           </div>`;
       }
 
@@ -4391,8 +4391,8 @@
           const summary = document.getElementById('notificationSummary');
           const noteSummary = document.getElementById('specialNoteSummary');
           const noteList = document.getElementById('specialNoteList');
-          if (summary) summary.textContent = 'Could not reach Google Sheet';
-          if (noteSummary) noteSummary.textContent = 'Could not reach Google Sheet';
+          if (summary) summary.textContent = 'Could not reach';
+          if (noteSummary) noteSummary.textContent = 'Could not reach';
           if (list) {
             list.innerHTML = `
               <div class="notification-state error">
@@ -4555,7 +4555,7 @@
 
       const confirmed = window.confirm(
         'Mark the request from "' + branch + '" as PRINTED?\n\n' +
-        'This will update the Google Sheet and send the printed-completion email.'
+        'This will update the Database and send the printed-completion email.'
       );
 
       if (!confirmed) {
@@ -4573,7 +4573,7 @@
         .then(result => {
           const emailFailed = result && result.emailError && !result.emailSent;
           const message = emailFailed
-            ? '✓ ' + branch + ' was changed to PRINTED in Google Sheet, but the completion email failed: ' + result.emailError
+            ? '✓ ' + branch + ' was changed to PRINTED , but the completion email failed: ' + result.emailError
             : '✓ ' + branch + ' was changed to PRINTED';
 
           showAutoLoadBanner(message, emailFailed ? 'warn' : 'success');
@@ -4611,28 +4611,28 @@
     const INTEGRATED_PAGE_CONFIG = {
       products: {
         title: 'Products',
-        subtitle: 'Google Sheet tab: Products',
+       // ── subtitle: 'Google Sheet tab: Products',─────────────────────
         action: 'getProducts',
         tableClass: 'products-table',
         searchPlaceholder: 'Search product name, Arabic name, description, price, weight, allergen, or category'
       },
       requests: {
         title: 'Price Tag Requests',
-        subtitle: 'Google Sheet tab: Requests',
+        // ── subtitle: 'Google Sheet tab: Requests', ─────────────────────
         action: 'getRequests',
         tableClass: 'requests-table',
         searchPlaceholder: 'Search timestamp, email, branch, item, note, or status'
       },
       branches: {
         title: 'Branches',
-        subtitle: 'Google Sheet tab: Branches',
+        // ── subtitle: 'Google Sheet tab: Branches',─────────────────────
         action: 'getBranchRecords',
         tableClass: 'branches-table',
         searchPlaceholder: 'Search branch name'
       },
       holidays: {
         title: 'Holidays',
-        subtitle: 'Google Sheet tab: Holidays',
+        // ── subtitle: 'Google Sheet tab: Holidays',─────────────────────
         action: 'getHolidayRecords',
         tableClass: 'holidays-table',
         searchPlaceholder: 'Search holiday, date, or emoji'
@@ -4747,7 +4747,7 @@
       integratedPageLoading[type] = true;
       const body = document.getElementById('sheetRecordsBody');
       if (showLoading && body) {
-        body.innerHTML = '<tr><td class="request-records-empty">Loading ' + html(config.title) + ' from Google Sheet…</td></tr>';
+        body.innerHTML = '<tr><td class="request-records-empty">Loading ' + html(config.title) + ' from Database…</td></tr>';
       }
 
       return apiCall(config.action)
@@ -4759,7 +4759,7 @@
           console.error('[INTEGRATED PAGE] Failed to load ' + type + ':', err);
           if (body && currentIntegratedPage === type) {
             body.innerHTML = '<tr><td class="request-records-empty">⚠ ' +
-              html(err && err.message ? err.message : 'Unable to load Google Sheet data.') + '</td></tr>';
+              html(err && err.message ? err.message : 'Unable to load Database data.') + '</td></tr>';
           }
         })
         .finally(() => { integratedPageLoading[type] = false; });
@@ -5083,7 +5083,7 @@
       const error = document.getElementById('sheetManagementError');
       const labels = { products: 'Product', requests: 'Request', branches: 'Branch', holidays: 'Holiday' };
       if (title) title.textContent = (mode === 'add' ? 'Add ' : 'Edit ') + (labels[type] || 'Record');
-      if (subtitle) subtitle.textContent = 'Changes are saved directly to the Google Sheet tab.';
+      if (subtitle) subtitle.textContent = 'Changes are saved directly to the Database tab.';
       if (error) { error.style.display = 'none'; error.textContent = ''; }
 
       fieldWrap.innerHTML = fields.map(field => {
@@ -5227,10 +5227,10 @@
       if (!action) return;
 
       requireAdminForManagement(() => {
-        if (!window.confirm('Delete this ' + (labels[type] || 'record') + '?\n\nThis change will be reflected in Google Sheets.')) return;
+        if (!window.confirm('Delete this ' + (labels[type] || 'record') + '?\n\nThis change will be reflected in Database.')) return;
         apiCall(action, { row: row })
           .then(() => {
-            showAutoLoadBanner('✓ Record deleted from Google Sheet.', 'success');
+            showAutoLoadBanner('✓ Record deleted from Database.', 'success');
             return refreshAfterManagementChange(type);
           })
           .catch(err => window.alert('Could not delete the record: ' + (err && err.message ? err.message : err)));
