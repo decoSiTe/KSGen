@@ -4,6 +4,8 @@
   <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="products-compact-columns-fix" content="2026-07-23-v1">
+  <meta name="products-price-column-fix" content="2026-07-23-v1">
   <title>Price Tag Generator</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" type="image/png" href="favicon.png">
@@ -73,6 +75,13 @@
     }
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
   <style>
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -3238,7 +3247,7 @@
 
     .integrated-table-cell.muted { color: #727a90; }
     .integrated-table-cell.strong { color: #11162f; font-weight: 800; }
-    .integrated-table-cell.price { color: #a54d00; font-family: var(--font-mono); font-weight: 900; white-space: nowrap; }
+    .integrated-table-cell.product-price-cell { color: #a54d00; font-family: var(--font-mono); font-weight: 900; white-space: nowrap; }
 
     .request-records-table.products-table { min-width: 1900px; }
     .request-records-table.requests-table { min-width: 1500px; }
@@ -3449,7 +3458,7 @@
     .request-cell-branch { color: var(--text) !important; }
     .integrated-table-cell.muted,
     .request-cell-notes.empty { color: var(--muted) !important; }
-    .integrated-table-cell.price { color: var(--gold) !important; }
+    .integrated-table-cell.product-price-cell { color: var(--gold) !important; }
     .request-cell-email { color: #d6deea !important; }
 
     .request-table-status {
@@ -3606,6 +3615,745 @@
 
     .request-records-table-wrap::-webkit-scrollbar-corner {
       background: rgba(15,17,21,.96);
+    }
+
+  
+
+    /* ═══════════════════════════════════════════════════════════════
+       CHOCOLATE SIZE CHOOSER + SPECIAL PRINT ITEMS
+       Chocolate: 5cm x 4cm or 8cm x 6cm.
+       Signage PNG files: NS.png, NPA.png, NOFD.png and GEG.png from Photo_Drive.
+       ═══════════════════════════════════════════════════════════════ */
+    .chocolate-size-modal-box {
+      width: min(590px, 96vw) !important;
+    }
+
+    .chocolate-size-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .chocolate-size-option {
+      position: relative;
+      min-height: 112px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      cursor: pointer;
+      transition: transform .18s, border-color .18s, background .18s, box-shadow .18s;
+    }
+
+    .chocolate-size-option:hover,
+    .chocolate-size-option:has(input:checked) {
+      transform: translateY(-1px);
+      border-color: rgba(255,214,0,.55);
+      background: rgba(255,214,0,.075);
+      box-shadow: 0 0 28px -16px rgba(255,214,0,.9);
+    }
+
+    .chocolate-size-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chocolate-size-swatch {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(135,72,18,.8);
+      background: #e9dab8;
+      color: #874812;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 900;
+      box-shadow: inset 0 -13px 0 #874812;
+    }
+
+    .chocolate-size-swatch.small { width: 75px; height: 60px; }
+    .chocolate-size-swatch.large { width: 88px; height: 66px; }
+
+    .chocolate-size-copy strong {
+      display: block;
+      color: var(--text);
+      font-family: var(--font-heading);
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .chocolate-size-copy span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .print-slot {
+      width: 8cm;
+      height: 6cm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex: 0 0 auto;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .chocolate-tag {
+      position: relative;
+      width: 8cm;
+      height: 6cm;
+      overflow: hidden;
+      box-sizing: border-box;
+      background: #e9dab8;
+      color: #5c352e;
+      font-family: 'Futura PT Extra Bold', 'Inter', Arial, sans-serif;
+      box-shadow: 0 2px 14px rgba(0,0,0,.28);
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .chocolate-tag.small {
+      width: 5cm;
+      height: 4cm;
+    }
+
+    .choc-stripes {
+      position: absolute;
+      top: .12cm;
+      left: 0;
+      right: 0;
+      display: grid;
+      gap: .09cm;
+    }
+
+    .choc-stripes i {
+      display: block;
+      height: .09cm;
+      background: #874812;
+    }
+
+    .choc-title {
+      position: absolute;
+      top: .92cm;
+      left: .38cm;
+      right: .38cm;
+      height: 1.62cm;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow: hidden;
+      text-align: center;
+      color: #5c352e;
+      font-size: .69cm;
+      font-weight: 900;
+      line-height: .77cm;
+      letter-spacing: .055cm;
+      text-transform: uppercase;
+    }
+
+    .choc-info {
+      position: absolute;
+      left: .75cm;
+      right: .75cm;
+      top: 3.02cm;
+      height: 1.08cm;
+      display: grid;
+      grid-template-columns: minmax(1.3cm, auto) 1px minmax(0, 1fr);
+      align-items: center;
+      gap: .18cm;
+      color: #5c352e;
+    }
+
+    .choc-weight {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: .29cm;
+      font-weight: 800;
+      letter-spacing: .025cm;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .choc-divider {
+      width: 1px;
+      height: 1.02cm;
+      background: #874812;
+    }
+
+    .choc-description {
+      max-height: 1.02cm;
+      overflow: hidden;
+      color: #5c352e;
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: .17cm;
+      font-weight: 700;
+      line-height: .20cm;
+      text-align: left;
+    }
+
+    .choc-bottom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1.72cm;
+      background: #874812;
+      color: #f5e8c9;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: .10cm;
+    }
+
+    .choc-price-line {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: .16cm;
+      width: 100%;
+    }
+
+    .choc-price {
+      position: static;
+      color: #f5e8c9;
+      font-family: 'Futura PT Bold', 'Arial Black', Arial, sans-serif;
+      font-size: 1.62cm;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -.05cm;
+      white-space: nowrap;
+    }
+
+    .choc-aed {
+      position: static;
+      color: #f5e8c9;
+      font-family: 'Futura PT Bold', Arial, sans-serif;
+      font-size: .46cm;
+      font-weight: 900;
+      white-space: nowrap;
+      padding-top: .30cm;
+    }
+
+    .chocolate-tag.small .choc-stripes {
+      top: .08cm;
+      gap: .055cm;
+    }
+
+    .chocolate-tag.small .choc-stripes i { height: .055cm; }
+
+    .chocolate-tag.small .choc-title {
+      top: .62cm;
+      left: .28cm;
+      right: .28cm;
+      height: 1.02cm;
+      font-size: .40cm;
+      line-height: .43cm;
+      letter-spacing: .025cm;
+    }
+
+    .chocolate-tag.small .choc-info {
+      left: .38cm;
+      right: .38cm;
+      top: 1.93cm;
+      height: .78cm;
+      grid-template-columns: minmax(1.05cm, auto) 1px minmax(0, 1fr);
+      gap: .11cm;
+    }
+
+    .chocolate-tag.small .choc-weight {
+      font-size: .23cm;
+      letter-spacing: .012cm;
+    }
+
+    .chocolate-tag.small .choc-divider { height: .75cm; }
+
+    .chocolate-tag.small .choc-description {
+      max-height: .76cm;
+      font-size: .12cm;
+      line-height: .145cm;
+    }
+
+    .chocolate-tag.small .choc-bottom { height: 1.16cm; padding-bottom: .07cm; }
+
+    .chocolate-tag.small .choc-price-line { gap: .10cm; }
+
+    .chocolate-tag.small .choc-price {
+      font-size: 1.08cm;
+      line-height: 1;
+      letter-spacing: -.035cm;
+    }
+
+    .chocolate-tag.small .choc-aed {
+      font-size: .29cm;
+      padding-top: .20cm;
+    }
+
+    .discount-tag-40 {
+      position: relative;
+      width: 8cm;
+      height: 6cm;
+      overflow: hidden;
+      box-sizing: border-box;
+      background: linear-gradient(to bottom, #e9dab8 0 64%, #874812 64% 100%);
+      box-shadow: 0 2px 14px rgba(0,0,0,.28);
+      font-family: 'Futura PT Extra Bold', 'Arial Black', Arial, sans-serif;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .discount-tag-40::before {
+      content: '';
+      position: absolute;
+      inset: .38cm .34cm .38cm .34cm;
+      border: 1px solid rgba(90,64,39,.72);
+      pointer-events: none;
+    }
+
+    .discount-percent {
+      position: absolute;
+      top: .35cm;
+      left: 1.35cm;
+      display: flex;
+      align-items: flex-start;
+      color: #ec008c;
+      font-size: 2.45cm;
+      line-height: 2.45cm;
+      font-weight: 900;
+      letter-spacing: -.12cm;
+      white-space: nowrap;
+    }
+
+    .discount-percent sup {
+      margin-top: .20cm;
+      margin-left: -.08cm;
+      font-size: 1.12cm;
+      line-height: 1.12cm;
+      letter-spacing: -.04cm;
+    }
+
+    .discount-off {
+      position: absolute;
+      left: 1.18cm;
+      bottom: .35cm;
+      color: #874812;
+      font-size: 2.28cm;
+      line-height: 2.28cm;
+      font-weight: 900;
+      letter-spacing: -.12cm;
+      white-space: nowrap;
+      -webkit-text-stroke: .055cm #f5e8c9;
+      paint-order: stroke fill;
+    }
+
+    .special-pdf-tag {
+      width: 8cm;
+      height: 6cm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #fff;
+      color: #333;
+      box-shadow: 0 2px 14px rgba(0,0,0,.28);
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .special-pdf-loading,
+    .special-pdf-error {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+
+    .special-asset-image {
+      display: block;
+      object-fit: contain;
+      object-position: center center;
+      background: #fff;
+      box-shadow: 0 2px 14px rgba(0,0,0,.28);
+    }
+
+    /* 40%.png remains an 8cm × 6cm design. */
+    .special-asset-image.standard-special-image {
+      width: 8cm;
+      height: 6cm;
+    }
+
+    /* All signage images are automatically centered in their A4 preview slot. */
+    .print-slot.full-page-special {
+      width: 8cm;
+      height: 11.3cm;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .print-slot.full-page-special .special-pdf-tag {
+      width: 8cm;
+      height: 11.3cm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .special-asset-image.centered-a4-image {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      margin: auto;
+    }
+
+    .special-asset-image.full-a4-image {
+      width: 100%;
+      height: 100%;
+      margin: auto;
+      object-fit: contain;
+      object-position: center center;
+    }
+
+    .special-pdf-canvas.full-page,
+    .print-slot.full-page-special .special-pdf-canvas {
+      background: #fff;
+      box-shadow: 0 2px 14px rgba(0,0,0,.28);
+    }
+
+    .special-pdf-loading { color: #666; background: #f6f6f6; }
+    .special-pdf-error { color: #b53200; background: #fff2ec; }
+
+    .special-pdf-canvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      background: #fff;
+    }
+
+    @media (max-width: 640px) {
+      .chocolate-size-options { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      #chocolateSizeModal { display: none !important; }
+
+      .preview-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 8cm) !important;
+        grid-auto-rows: 6cm !important;
+        gap: .25cm !important;
+        width: 16.25cm !important;
+        max-width: 16.25cm !important;
+        margin: 0 auto !important;
+        justify-content: center !important;
+        align-content: start !important;
+      }
+
+      .print-slot {
+        width: 8cm !important;
+        height: 6cm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .print-slot.full-page-special {
+        width: 19cm !important;
+        height: 27.7cm !important;
+        grid-column: 1 / -1 !important;
+        grid-row: auto !important;
+        page-break-before: always !important;
+        break-before: page !important;
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+
+      .print-slot.full-page-special .special-pdf-tag,
+      .print-slot.full-page-special .special-pdf-canvas {
+        width: 19cm !important;
+        height: 27.7cm !important;
+        max-width: 19cm !important;
+        max-height: 27.7cm !important;
+      }
+
+      .print-slot.full-page-special .special-pdf-tag {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      /* NS.png and GEG.png: preserve proportions and auto-center on A4. */
+      .print-slot.full-page-special .special-asset-image.centered-a4-image {
+        width: auto !important;
+        height: auto !important;
+        max-width: 19cm !important;
+        max-height: 27.7cm !important;
+        margin: auto !important;
+        object-fit: contain !important;
+        object-position: center center !important;
+      }
+
+      /* NPA.png and NOFD.png: fill the complete available A4 print area. */
+      .print-slot.full-page-special .special-asset-image.full-a4-image {
+        width: 19cm !important;
+        height: 27.7cm !important;
+        max-width: 19cm !important;
+        max-height: 27.7cm !important;
+        margin: auto !important;
+        object-fit: contain !important;
+        object-position: center center !important;
+      }
+
+      body:not(.print-small-chocolate-only):not(.print-has-full-page-special) .print-slot:nth-child(8n) {
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+
+      body.print-small-chocolate-only .request-banner {
+        width: 15.5cm !important;
+      }
+
+      body.print-small-chocolate-only .preview-grid {
+        grid-template-columns: repeat(3, 5cm) !important;
+        grid-auto-rows: 4cm !important;
+        gap: .25cm !important;
+        width: 15.5cm !important;
+        max-width: 15.5cm !important;
+      }
+
+      body.print-small-chocolate-only .print-slot {
+        width: 5cm !important;
+        height: 4cm !important;
+      }
+
+      body.print-small-chocolate-only .print-slot:nth-child(18n) {
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+
+      .price-tag,
+      .chocolate-tag,
+      .discount-tag-40,
+      .special-pdf-tag {
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        filter: none !important;
+        transform: none !important;
+        page-break-after: auto !important;
+        break-after: auto !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .special-pdf-loading,
+      .special-pdf-error {
+        display: none !important;
+      }
+    }
+
+  
+    /* ==========================================================
+       SPECIAL PNG A4 PRINT FIX
+       Each signage PNG is centered and fills one printable A4 page.
+       This final block intentionally overrides the normal tag grid.
+       ========================================================== */
+    @media print {
+      body.print-has-full-page-special .request-banner {
+        display: none !important;
+      }
+
+      body.print-has-full-page-special .preview-grid {
+        display: block !important;
+        width: 20cm !important;
+        max-width: 20cm !important;
+        min-width: 20cm !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        gap: 0 !important;
+        background: #ffffff !important;
+        text-align: center !important;
+      }
+
+      body.print-has-full-page-special .print-slot.full-page-special {
+        display: flex !important;
+        position: relative !important;
+        width: 20cm !important;
+        height: 28.7cm !important;
+        max-width: 20cm !important;
+        max-height: 28.7cm !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        align-items: center !important;
+        justify-content: center !important;
+        grid-column: auto !important;
+        grid-row: auto !important;
+        background: #ffffff !important;
+        page-break-before: always !important;
+        break-before: page !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      /* Do not create a blank page before the first signage. */
+      body.print-has-full-page-special .print-slot.full-page-special:first-child {
+        page-break-before: auto !important;
+        break-before: auto !important;
+      }
+
+      /* Do not create an extra blank sheet after the final signage. */
+      body.print-has-full-page-special .print-slot.full-page-special:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+
+      body.print-has-full-page-special .print-slot.full-page-special .special-pdf-tag {
+        display: flex !important;
+        position: relative !important;
+        width: 20cm !important;
+        height: 28.7cm !important;
+        max-width: 20cm !important;
+        max-height: 28.7cm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #ffffff !important;
+      }
+
+      body.print-has-full-page-special .print-slot.full-page-special .special-asset-image,
+      body.print-has-full-page-special .print-slot.full-page-special .special-asset-image.centered-a4-image,
+      body.print-has-full-page-special .print-slot.full-page-special .special-asset-image.full-a4-image {
+        display: block !important;
+        width: 20cm !important;
+        height: 28.7cm !important;
+        min-width: 20cm !important;
+        min-height: 28.7cm !important;
+        max-width: 20cm !important;
+        max-height: 28.7cm !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        object-fit: fill !important;
+        object-position: center center !important;
+        transform: none !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+      }
+    }
+
+  
+    /* Products table price column must remain a normal table cell. */
+    .request-records-table .product-price-cell {
+      position: static !important;
+      right: auto !important;
+      bottom: auto !important;
+      display: table-cell !important;
+      font-size: 10px !important;
+      line-height: 1.45 !important;
+      letter-spacing: normal !important;
+      white-space: nowrap !important;
+      vertical-align: top !important;
+    }
+
+
+    /* Products table: compact Price and Symbol columns to fit their content. */
+    .request-records-table.products-table {
+      width: 1790px !important;
+      min-width: 1790px !important;
+      table-layout: fixed !important;
+    }
+
+    .request-records-table.products-table th:nth-child(1),
+    .request-records-table.products-table td:nth-child(1) {
+      width: 180px !important;
+      min-width: 180px !important;
+      max-width: 180px !important;
+    }
+
+    .request-records-table.products-table th:nth-child(2),
+    .request-records-table.products-table td:nth-child(2) {
+      width: 150px !important;
+      min-width: 150px !important;
+      max-width: 150px !important;
+    }
+
+    .request-records-table.products-table th:nth-child(3),
+    .request-records-table.products-table td:nth-child(3),
+    .request-records-table.products-table th:nth-child(4),
+    .request-records-table.products-table td:nth-child(4) {
+      width: 250px !important;
+      min-width: 250px !important;
+      max-width: 250px !important;
+    }
+
+    .request-records-table.products-table th:nth-child(5),
+    .request-records-table.products-table td:nth-child(5) {
+      width: 72px !important;
+      min-width: 72px !important;
+      max-width: 72px !important;
+      white-space: nowrap !important;
+    }
+
+    .request-records-table.products-table th:nth-child(6),
+    .request-records-table.products-table td:nth-child(6) {
+      width: 72px !important;
+      min-width: 72px !important;
+      max-width: 72px !important;
+      white-space: nowrap !important;
+    }
+
+    .request-records-table.products-table th:nth-child(7),
+    .request-records-table.products-table td:nth-child(7),
+    .request-records-table.products-table th:nth-child(8),
+    .request-records-table.products-table td:nth-child(8) {
+      width: 125px !important;
+      min-width: 125px !important;
+      max-width: 125px !important;
+    }
+
+    .request-records-table.products-table th:nth-child(9),
+    .request-records-table.products-table td:nth-child(9),
+    .request-records-table.products-table th:nth-child(10),
+    .request-records-table.products-table td:nth-child(10) {
+      width: 180px !important;
+      min-width: 180px !important;
+      max-width: 180px !important;
+    }
+
+    .request-records-table.products-table th:nth-child(11),
+    .request-records-table.products-table td:nth-child(11) {
+      width: 110px !important;
+      min-width: 110px !important;
+      max-width: 110px !important;
+    }
+
+    .request-records-table.products-table th:nth-child(12),
+    .request-records-table.products-table td:nth-child(12) {
+      width: 100px !important;
+      min-width: 100px !important;
+      max-width: 100px !important;
     }
 
   </style>
@@ -3819,6 +4567,42 @@
     </div>
   </div>
 
+
+  <!-- Chocolate print-size chooser -->
+  <div id="chocolateSizeModal" class="admin-modal-overlay" aria-hidden="true">
+    <div class="admin-modal-box chocolate-size-modal-box">
+      <div class="admin-modal-title">Choose Chocolate Price Tag Size</div>
+      <div class="admin-modal-subtitle">
+        This request contains an item from the Chocolate category. Select the physical size before printing.
+      </div>
+
+      <div class="chocolate-size-options">
+        <label class="chocolate-size-option">
+          <input type="radio" name="chocolatePrintSize" value="5x4">
+          <span class="chocolate-size-swatch small">5 × 4 cm</span>
+          <span class="chocolate-size-copy">
+            <strong>5 cm × 4 cm</strong>
+            <span>Compact chocolate price tag.</span>
+          </span>
+        </label>
+
+        <label class="chocolate-size-option">
+          <input type="radio" name="chocolatePrintSize" value="8x6" checked>
+          <span class="chocolate-size-swatch large">8 × 6 cm</span>
+          <span class="chocolate-size-copy">
+            <strong>8 cm × 6 cm</strong>
+            <span>Standard chocolate price tag.</span>
+          </span>
+        </label>
+      </div>
+
+      <div class="admin-modal-actions">
+        <button class="btn btn-ghost" type="button" onclick="closeChocolateSizeModal()">Cancel</button>
+        <button class="btn btn-primary" type="button" onclick="confirmChocolateSizeAndPrint()">Continue to Print</button>
+      </div>
+    </div>
+  </div>
+
   <div class="layout">
 
     <!-- LEFT: Product Database -->
@@ -3913,6 +4697,11 @@
     let pendingNotificationLoading = false;
     let pendingNotificationTimer = null;
     let latestPendingRequests = [];
+    let chocolatePrintSize = '8x6';
+    const specialAssetDataCache = {};
+    const specialAssetRequestCache = {};
+    const specialPdfDocumentCache = {};
+
 
     // ── Helpers ───────────────────────────────────────────
     function hideLoadingOverlay() {
@@ -4103,7 +4892,9 @@
 
 
     function cloneProductForCart(product) {
-      return Object.assign({}, product || {});
+      const copy = Object.assign({}, product || {});
+      copy.specialType = getSpecialTagType(copy);
+      return copy;
     }
 
     function normalizePriceText(value) {
@@ -4129,6 +4920,106 @@
         .replace(/[^a-z0-9]+/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
+    }
+
+
+    function getSpecialTagType(value) {
+      if (value && typeof value === 'object' && value.specialType) {
+        return String(value.specialType).trim().toUpperCase();
+      }
+
+      const source = value && typeof value === 'object'
+        ? [value.name, value.descriptionEN, value.description].filter(Boolean).join(' ')
+        : String(value || '');
+      const normalized = cleanName(source);
+      const raw = source.toLowerCase();
+
+      if (normalized.includes('no smoking')) return 'NO_SMOKING';
+      if (normalized.includes('no pets') || normalized.includes('no pet allowed')) return 'NO_PETS';
+      if (normalized.includes('no outside food')) return 'NO_OUTSIDE_FOOD';
+      if (normalized.includes('guest experience guideline')) return 'GUEST_EXPERIENCE';
+      if (raw.includes('40%') || /\b40\s*(?:percent|discount|off)\b/.test(normalized)) return 'DISCOUNT_40';
+      return '';
+    }
+
+    function isDriveAssetSpecial(value) {
+      return ['NO_SMOKING', 'NO_PETS', 'NO_OUTSIDE_FOOD', 'GUEST_EXPERIENCE', 'DISCOUNT_40'].includes(getSpecialTagType(value));
+    }
+
+    function isFullPageSpecial(value) {
+      // Every signage image prints on its own A4 page.
+      return ['NO_SMOKING', 'NO_PETS', 'NO_OUTSIDE_FOOD', 'GUEST_EXPERIENCE'].includes(getSpecialTagType(value));
+    }
+
+    function isFullA4Image(value) {
+      // All signage PNG files use the complete available A4 print area.
+      return ['NO_SMOKING', 'NO_PETS', 'NO_OUTSIDE_FOOD', 'GUEST_EXPERIENCE']
+        .includes(getSpecialTagType(value));
+    }
+
+    function isDrivePdfSpecial(value) {
+      // Kept for compatibility with the existing selected-items labels.
+      return isFullPageSpecial(value);
+    }
+
+    function isChocolateProduct(product) {
+      if (!product || getSpecialTagType(product)) return false;
+      const category = String(product.category || '').trim().toUpperCase();
+      return category === 'CHOCOLATE' || category === 'CHOCOLATES' || category === 'CHOCO';
+    }
+
+    function createSyntheticSpecialProduct(item, specialType) {
+      const labels = {
+        NO_SMOKING: 'No Smoking',
+        NO_PETS: 'No Pets Allowed',
+        NO_OUTSIDE_FOOD: 'No Outside Food or Drink',
+        GUEST_EXPERIENCE: 'Guest Experience Guidelines',
+        DISCOUNT_40: '40% Discount'
+      };
+      return {
+        productKey: 'SPECIAL_' + specialType,
+        rowNumber: '',
+        name: labels[specialType] || String(item && item.name || 'Special Print'),
+        arabicName: '',
+        description: '',
+        descriptionEN: '',
+        descriptionAR: '',
+        price: '',
+        symbol: '',
+        netWeight: '',
+        netWeightEN: '',
+        netWeightAR: '',
+        portions: '',
+        portionsEN: '',
+        portionsAR: '',
+        allergensEN: '',
+        allergensAR: '',
+        category: specialType === 'DISCOUNT_40' ? 'DISCOUNT' : 'SIGNAGE',
+        specialType: specialType
+      };
+    }
+
+    function cartContainsChocolate() {
+      return cart.some(item => isChocolateProduct(item.product));
+    }
+
+    function allPrintableItemsAreSmallChocolate() {
+      return chocolatePrintSize === '5x4' && cart.length > 0 &&
+        cart.every(item => isChocolateProduct(item.product));
+    }
+
+    function cartContainsFullPageSpecial() {
+      return cart.some(item => isFullPageSpecial(item.product));
+    }
+
+    function allPrintableItemsAreFullPageSpecial() {
+      return cart.length > 0 && cart.every(item => isFullPageSpecial(item.product));
+    }
+
+    function applyPrintLayoutClasses() {
+      document.body.classList.toggle('print-small-chocolate-only', allPrintableItemsAreSmallChocolate());
+      document.body.classList.toggle('print-has-full-page-special', cartContainsFullPageSpecial());
+      document.body.classList.toggle('print-full-page-special-only', allPrintableItemsAreFullPageSpecial());
     }
 
     function parseSelectedProductsFromRequest(req) {
@@ -4212,7 +5103,19 @@
 
     function getRequestedItems(req) {
       const exactItems = parseSelectedProductsFromRequest(req);
-      return exactItems.length ? exactItems : parseRequestedItems(req && req.priceTagList);
+      const listedItems = parseRequestedItems(req && req.priceTagList);
+      if (!exactItems.length) return listedItems;
+
+      // Keep the exact Products JSON, but also preserve special signage/discount
+      // entries that may exist only in the visible List of Price Tags column.
+      const exactSpecialTypes = new Set(
+        exactItems.map(item => getSpecialTagType(item.name || item.raw || '')).filter(Boolean)
+      );
+      const additionalSpecialItems = listedItems.filter(item => {
+        const type = getSpecialTagType(item.name || item.raw || '');
+        return type && !exactSpecialTypes.has(type);
+      });
+      return exactItems.concat(additionalSpecialItems);
     }
 
     function findBestProductMatch(requestItem) {
@@ -4725,7 +5628,56 @@
 
     function handlePrintAction() {
       if (document.body.classList.contains('integrated-sheet-open')) closeIntegratedSheetPage();
-      setTimeout(() => window.print(), 30);
+
+      if (cartContainsChocolate()) {
+        openChocolateSizeModal();
+        return;
+      }
+
+      executePreparedPrint();
+    }
+
+    function openChocolateSizeModal() {
+      const modal = document.getElementById('chocolateSizeModal');
+      const selected = document.querySelector('input[name="chocolatePrintSize"][value="' + chocolatePrintSize + '"]');
+      if (selected) selected.checked = true;
+      if (modal) {
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+    }
+
+    function closeChocolateSizeModal() {
+      const modal = document.getElementById('chocolateSizeModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    function confirmChocolateSizeAndPrint() {
+      const selected = document.querySelector('input[name="chocolatePrintSize"]:checked');
+      chocolatePrintSize = selected ? selected.value : '8x6';
+      closeChocolateSizeModal();
+      renderPreview();
+      setTimeout(executePreparedPrint, 80);
+    }
+
+    async function executePreparedPrint() {
+      const printButton = document.getElementById('pdfBtn');
+      if (printButton) printButton.disabled = true;
+
+      try {
+        applyPrintLayoutClasses();
+        const ready = await ensureSpecialPdfTagsRendered();
+        if (!ready) return;
+        setTimeout(() => window.print(), 60);
+      } catch (err) {
+        console.error('[PRINT] Could not prepare the print preview:', err);
+        window.alert('Could not prepare the special PDF file(s): ' + (err && err.message ? err.message : err));
+      } finally {
+        if (printButton) printButton.disabled = cart.length === 0;
+      }
     }
 
     function formatRequestTimestamp(value) {
@@ -4863,7 +5815,7 @@
           '<td class="integrated-table-cell arabic">' + html(product.arabicName || '—') + '</td>' +
           '<td class="integrated-table-cell">' + html(product.descriptionEN || '—') + '</td>' +
           '<td class="integrated-table-cell arabic">' + html(product.descriptionAR || '—') + '</td>' +
-          '<td class="integrated-table-cell price">' + html(product.price || '—') + '</td>' +
+          '<td class="integrated-table-cell product-price-cell">' + html(product.price || '—') + '</td>' +
           '<td class="integrated-table-cell">' + html(product.symbol || '—') + '</td>' +
           '<td class="integrated-table-cell">' + html(product.netWeightEN || '—') + '</td>' +
           '<td class="integrated-table-cell arabic">' + html(product.netWeightAR || '—') + '</td>' +
@@ -5239,6 +6191,7 @@
 
 
     window.addEventListener('beforeprint', () => {
+      applyPrintLayoutClasses();
       const banner = document.getElementById('autoLoadBanner');
       if (banner) banner.style.display = 'none';
 
@@ -5336,6 +6289,28 @@
       let totalTags = 0;
 
       requestedItems.forEach(item => {
+        const specialType = getSpecialTagType(item.name || item.raw || '');
+
+        if (specialType) {
+          const matchedSpecial = allProducts.find(product => getSpecialTagType(product) === specialType) || null;
+          const specialProduct = matchedSpecial
+            ? cloneProductForCart(matchedSpecial)
+            : createSyntheticSpecialProduct(item, specialType);
+
+          specialProduct.specialType = specialType;
+          specialProduct.productKey = 'SPECIAL_' + specialType;
+
+          const specialKey = productKeyOf(specialProduct);
+          const existingSpecial = cart.find(c => productKeyOf(c.product) === specialKey);
+          if (existingSpecial) existingSpecial.qty += item.qty;
+          else cart.push({ product: specialProduct, qty: item.qty });
+
+          addedCount++;
+          totalTags += item.qty;
+          console.log('[PRELOAD] Added special print:', specialProduct.name, 'qty:', item.qty);
+          return;
+        }
+
         const match = findBestProductMatch(item);
         if (match) {
           const matchKey = productKeyOf(match);
@@ -5424,7 +6399,7 @@
             ${p.arabicName ? `<div class="pc-arabic">${p.arabicName}</div>` : ''}
             <div class="pc-desc">${p.description || '—'}</div>
             <div class="pc-footer">
-              <span class="pc-price">AED ${p.price}</span>
+              <span class="pc-price">${isDrivePdfSpecial(p) ? 'PDF FILE' : (getSpecialTagType(p) === 'DISCOUNT_40' ? '40% DESIGN' : 'AED ' + p.price)}</span>
               <span class="pc-cat">${p.category}</span>
             </div>
             <button class="add-btn" onclick="addToCart(${idx})" ${inCart ? 'disabled' : ''}>
@@ -5460,7 +6435,7 @@
       renderPreview(); updateCount();
     }
 
-    function clearAll() { cart = []; renderAll(); }
+    function clearAll() { cart = []; chocolatePrintSize = '8x6'; applyPrintLayoutClasses(); renderAll(); }
 
     function renderAll() {
       renderProductList();
@@ -5489,14 +6464,17 @@
 
       body.innerHTML = cart.map(({ product: p, qty }) => {
         const key = esc(productKeyOf(p));
+        const specialType = getSpecialTagType(p);
+        const priceLabel = isDrivePdfSpecial(p) ? 'PDF' : (specialType === 'DISCOUNT_40' ? 'DESIGN' : 'AED ' + p.price);
+        const weightLabel = specialType ? '—' : (p.netWeight || '—');
         return `
         <tr>
           <td>
             <div class="td-name">${p.name}</div>
             ${p.arabicName ? `<div class="td-arabic">${p.arabicName}</div>` : ''}
           </td>
-          <td class="td-price">AED ${p.price}</td>
-          <td class="td-weight">${p.netWeight || '—'}</td>
+          <td class="td-price">${priceLabel}</td>
+          <td class="td-weight">${weightLabel}</td>
           <td>
             <div class="qty-control">
               <button class="qty-btn" onclick="changeQty('${key}', -1)">−</button>
@@ -5507,7 +6485,7 @@
           </td>
           <td>
             <div class="action-cell">
-              <button class="edit-btn" onclick="openEditPrice('${key}')">Edit</button>
+              ${specialType ? '' : `<button class="edit-btn" onclick="openEditPrice('${key}')">Edit</button>`}
               <button class="remove-btn" onclick="removeFromCart('${key}')">Remove</button>
             </div>
           </td>
@@ -5518,15 +6496,229 @@
     // ── Preview ───────────────────────────────────────────
     function renderPreview() {
       const grid = document.getElementById('previewGrid');
-      if (!cart.length) { grid.innerHTML = ''; return; }
+      if (!cart.length) {
+        grid.innerHTML = '';
+        applyPrintLayoutClasses();
+        return;
+      }
 
       const tags = [];
       cart.forEach(({ product, qty }) => {
         for (let i = 0; i < qty; i++) tags.push(product);
       });
 
-      grid.innerHTML = tags.map((p, i) => buildTagHTML(p, i)).join('');
+      grid.innerHTML = tags.map((product, index) => {
+        const isSmallChocolate = isChocolateProduct(product) && chocolatePrintSize === '5x4';
+        const isFullPage = isFullPageSpecial(product);
+        return '<div class="print-slot' + (isSmallChocolate ? ' is-small' : '') + (isFullPage ? ' full-page-special' : '') + '">' +
+          buildPrintableItemHTML(product, index) +
+          '</div>';
+      }).join('');
+
+      applyPrintLayoutClasses();
       requestAnimationFrame(fitAllPriceTags);
+      loadSpecialPdfPreviews();
+    }
+
+    function buildPrintableItemHTML(product, index) {
+      const specialType = getSpecialTagType(product);
+      if (isDriveAssetSpecial(product)) return buildSpecialPdfHTML(specialType, index);
+      if (isChocolateProduct(product)) return buildChocolateTagHTML(product, index, chocolatePrintSize);
+      return buildTagHTML(product, index);
+    }
+
+    function buildChocolateTagHTML(product, index, size) {
+      const small = size === '5x4';
+      const price = normalizePrice(product.price);
+      const netWeight = normalizeNetWeight(product.netWeightEN || product.netWeight || '');
+      const description = cleanDisplayValue(product.descriptionEN || product.description || '');
+
+      return `
+        <div class="chocolate-tag${small ? ' small' : ''}" style="animation-delay:${index * 0.04}s">
+          <div class="choc-stripes"><i></i><i></i><i></i></div>
+          <div class="choc-title">${html(product.name || '')}</div>
+          <div class="choc-info">
+            <div class="choc-weight">${html(netWeight)}</div>
+            <div class="choc-divider"></div>
+            <div class="choc-description">${html(description)}</div>
+          </div>
+          <div class="choc-bottom">
+            <div class="choc-price-line">
+              <div class="choc-price">${html(price)}</div>
+              <div class="choc-aed">${html(product.symbol || 'AED')}</div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function buildDiscount40HTML(index) {
+      return `
+        <div class="discount-tag-40" style="animation-delay:${index * 0.04}s" aria-label="40 percent off">
+          <div class="discount-percent"><span>40</span><sup>%</sup></div>
+          <div class="discount-off">OFF</div>
+        </div>`;
+    }
+
+    function buildSpecialPdfHTML(specialType, index) {
+      const labels = {
+        NO_SMOKING: 'No Smoking',
+        NO_PETS: 'No Pets Allowed',
+        NO_OUTSIDE_FOOD: 'No Outside Food or Drink',
+        GUEST_EXPERIENCE: 'Guest Experience Guidelines',
+        DISCOUNT_40: '40%'
+      };
+      return `
+        <div class="special-pdf-tag" data-special-code="${html(specialType)}" data-render-index="${index}">
+          <div class="special-pdf-loading">
+            <div class="spinner" style="width:24px;height:24px;border-width:3px;"></div>
+            <div>Loading ${html(labels[specialType] || 'special PDF')}…</div>
+          </div>
+        </div>`;
+    }
+
+    function base64ToBytes(base64) {
+      const binary = window.atob(String(base64 || ''));
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return bytes;
+    }
+
+    function getSpecialAssetFile(code) {
+      code = String(code || '').trim().toUpperCase();
+      if (specialAssetDataCache[code]) return Promise.resolve(specialAssetDataCache[code]);
+      if (specialAssetRequestCache[code]) return specialAssetRequestCache[code];
+
+      specialAssetRequestCache[code] = apiCall('getSpecialAsset', { code: code })
+        .then(fileInfo => {
+          if (!fileInfo || !fileInfo.base64) throw new Error('The special file is empty or unavailable.');
+          specialAssetDataCache[code] = fileInfo;
+          return fileInfo;
+        })
+        .finally(() => {
+          delete specialAssetRequestCache[code];
+        });
+
+      return specialAssetRequestCache[code];
+    }
+
+    async function getSpecialPdfDocument(code) {
+      code = String(code || '').trim().toUpperCase();
+      if (specialPdfDocumentCache[code]) return specialPdfDocumentCache[code];
+      const fileInfo = await getSpecialAssetFile(code);
+      if (!window.pdfjsLib) throw new Error('PDF renderer did not load. Refresh the page and try again.');
+      if (!fileInfo || !fileInfo.base64) throw new Error('The PDF file is empty or unavailable.');
+      if (!String(fileInfo.mimeType || '').includes('pdf') && !/\.pdf$/i.test(String(fileInfo.fileName || ''))) {
+        throw new Error('The Drive file is not a PDF.');
+      }
+      const pdfDocument = await window.pdfjsLib.getDocument({ data: base64ToBytes(fileInfo.base64) }).promise;
+      specialPdfDocumentCache[code] = pdfDocument;
+      return pdfDocument;
+    }
+
+    async function renderSpecialPdfElement(element) {
+      if (!element || element.dataset.pdfReady === '1') return true;
+      if (element._pdfRenderPromise) return element._pdfRenderPromise;
+      const code = String(element.dataset.specialCode || '').trim().toUpperCase();
+      if (!code) return false;
+
+      element._pdfRenderPromise = (async () => {
+      try {
+        const fileInfo = await getSpecialAssetFile(code);
+        const mimeType = String(fileInfo.mimeType || '').toLowerCase();
+        const isPdf = mimeType.includes('pdf') || /\.pdf$/i.test(String(fileInfo.fileName || ''));
+        const fullPage = isFullPageSpecial({ specialType: code });
+
+        if (isPdf) {
+          const pdfDocument = await getSpecialPdfDocument(code);
+          const page = await pdfDocument.getPage(1);
+          const baseViewport = page.getViewport({ scale: 1 });
+
+          const naturalWidthCm = baseViewport.width * 2.54 / 72;
+          const naturalHeightCm = baseViewport.height * 2.54 / 72;
+          const targetWidthCm = fullPage ? 19 : 8;
+          const targetHeightCm = fullPage ? 27.7 : 6;
+          const physicalScale = Math.min(targetWidthCm / naturalWidthCm, targetHeightCm / naturalHeightCm);
+          const widthCm = naturalWidthCm * physicalScale;
+          const heightCm = naturalHeightCm * physicalScale;
+
+          const targetPixelWidth = Math.max(fullPage ? 1500 : 700, Math.round(widthCm / 2.54 * 96 * 2.2));
+          const renderScale = targetPixelWidth / baseViewport.width;
+          const viewport = page.getViewport({ scale: renderScale });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d', { alpha: false });
+          canvas.width = Math.ceil(viewport.width);
+          canvas.height = Math.ceil(viewport.height);
+          canvas.className = 'special-pdf-canvas' + (fullPage ? ' full-page' : '');
+          canvas.style.width = widthCm.toFixed(3) + 'cm';
+          canvas.style.height = heightCm.toFixed(3) + 'cm';
+
+          await page.render({ canvasContext: context, viewport: viewport, background: '#ffffff' }).promise;
+          element.innerHTML = '';
+          element.appendChild(canvas);
+          element.dataset.pdfReady = '1';
+          element.dataset.pdfPages = String(pdfDocument.numPages || 1);
+          return true;
+        }
+
+        const img = document.createElement('img');
+        const isA4Signage = isFullPageSpecial({ specialType: code });
+        const fillsA4 = isFullA4Image({ specialType: code });
+
+        img.className = 'special-asset-image ' +
+          (isA4Signage
+            ? (fillsA4 ? 'full-a4-image' : 'centered-a4-image')
+            : 'standard-special-image');
+        img.alt = code;
+
+        const imageReady = new Promise((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error('The PNG image could not be loaded: ' + (fileInfo.fileName || code)));
+        });
+
+        img.src = 'data:' + (mimeType || 'image/png') + ';base64,' + fileInfo.base64;
+        await imageReady;
+
+        if (typeof img.decode === 'function') {
+          try { await img.decode(); } catch (decodeErr) {}
+        }
+
+        element.innerHTML = '';
+        element.appendChild(img);
+        element.dataset.pdfReady = '1';
+        element.dataset.pdfPages = '1';
+        return true;
+      } catch (err) {
+        console.error('[SPECIAL ASSET] Failed to render ' + code + ':', err);
+        element.dataset.pdfReady = '0';
+        element.innerHTML = '<div class="special-pdf-error">⚠<br>' +
+          html(err && err.message ? err.message : 'Unable to load the file.') +
+          '</div>';
+        return false;
+      } finally {
+        element._pdfRenderPromise = null;
+      }
+      })();
+
+      return element._pdfRenderPromise;
+    }
+
+    function loadSpecialPdfPreviews() {
+      const elements = Array.from(document.querySelectorAll('.special-pdf-tag[data-special-code]'));
+      elements.forEach(element => renderSpecialPdfElement(element));
+    }
+
+    async function ensureSpecialPdfTagsRendered() {
+      const elements = Array.from(document.querySelectorAll('.special-pdf-tag[data-special-code]'));
+      if (!elements.length) return true;
+      const results = await Promise.all(elements.map(renderSpecialPdfElement));
+      const ready = results.every(Boolean);
+      if (!ready) {
+        window.alert(
+          'One or more special PDF files could not be loaded.\n\n' +
+          'Check the Photo_Drive folder and confirm these exact filenames exist: NS.png, NPA.png, NOFD.png, GEG.png and 40%.png.'
+        );
+      }
+      return ready;
     }
 
     function html(value) {
@@ -5734,6 +6926,12 @@
         fitTextToBox(tag.querySelector('.portions'), 6.5);
       });
 
+      document.querySelectorAll('.chocolate-tag').forEach(tag => {
+        fitTextToBox(tag.querySelector('.choc-title'), tag.classList.contains('small') ? 9 : 14);
+        fitTextToBox(tag.querySelector('.choc-description'), tag.classList.contains('small') ? 4.5 : 6);
+        fitTextToBox(tag.querySelector('.choc-weight'), tag.classList.contains('small') ? 6 : 8);
+      });
+
       // Exact-template mode: CSS positions and size functions control the layout.
       if (typeof applyCustomBackground === 'function') applyCustomBackground();
     }
@@ -5895,6 +7093,7 @@
       if (event.key === 'Escape') {
         closeAdminLoginModal();
         closePriceEditModal();
+        closeChocolateSizeModal();
       }
       if (event.key === 'Enter') {
         const adminModal = document.getElementById('adminLoginModal');
