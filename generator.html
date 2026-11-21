@@ -61,7 +61,7 @@
             reject(new Error((response && response.error) || 'API request failed: ' + action));
             return;
           }
-          resolve(response.data);
+          resolve(action === 'getBranchProducts' ? response : response.data);
         };
 
         script.onerror = function () {
@@ -4686,6 +4686,9 @@
     let cart         = [];
     let activeFilter = 'ALL';
     let manualBranch = '';
+    let activePriceSheet = '';
+    let branchCatalogToken = 0;
+    let branchCatalogLoading = false;
     let isManualGeneratorOpen = false;
     let adminLoggedIn = sessionStorage.getItem('priceTagAdminLoggedIn') === '1';
     let pendingEditKey = '';
@@ -4835,6 +4838,9 @@
           if (savedBranch && uniqueBranches.includes(savedBranch)) {
             select.value = savedBranch;
             setManualBranch(savedBranch);
+          } else {
+            manualBranch = '';
+            setGeneratorTitle('');
           }
         })
         .catch(err => {
@@ -4844,11 +4850,119 @@
         });
     }
 
+    // Centralized branch-to-price-sheet routing. Keep this in sync with Code.gs.
+    function getPriceSheetForBranch(branch) {
+      const value = String(branch || '').normalize('NFKD')
+        .toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim();
+      if (!value) return '';
+      if (value.includes('FLY DUBAI') || value.includes('FLYDUBAI') || value === 'FD') return 'FD';
+      if (value.includes('ABU DHABI MALL') || value.includes('ABUDHABI MALL') ||
+          value.includes('AL WAHDA MALL') || value.includes('BAWABAT') ||
+          value.includes('KHALIDIY') || value.includes('YAS MALL') ||
+          value.includes('SHAMS BOUTI')) return 'AUH';
+      return 'Products'; // Barsha and all other branches
+    }
+
+    function findSafeCatalogMatch(oldProduct, catalog, allowRowKey) {
+      if (!oldProduct) return null;
+      if (getSpecialTagType(oldProduct)) {
+        return catalog.find(p => getSpecialTagType(p) === getSpecialTagType(oldProduct)) ||
+          createSyntheticSpecialProduct(oldProduct, getSpecialTagType(oldProduct));
+      }
+      const name = cleanName(oldProduct.name);
+      const weight = normalizeWeightText(oldProduct.netWeightEN || oldProduct.netWeight);
+      if (!name) return null;
+      if (allowRowKey) {
+        const sameKey = catalog.find(p => productKeyOf(p) === productKeyOf(oldProduct));
+        if (sameKey && cleanName(sameKey.name) === name &&
+            (!weight || normalizeWeightText(sameKey.netWeightEN || sameKey.netWeight) === weight)) {
+          return sameKey;
+        }
+      }
+      let matches = catalog.filter(p => cleanName(p.name) === name);
+      if (weight) matches = matches.filter(p =>
+        normalizeWeightText(p.netWeightEN || p.netWeight) === weight);
+      const category = String(oldProduct.category || '').trim().toUpperCase();
+      if (category && matches.length > 1) {
+        matches = matches.filter(p => p.category === category);
+      }
+      return matches.length === 1 ? matches[0] : null; // Never guess between same-name sizes.
+    }
+
+    async function loadBranchCatalog(branch, preserveCart = false) {
+      const expectedSheet = getPriceSheetForBranch(branch);
+      const token = ++branchCatalogToken;
+      const previousSheet = activePriceSheet;
+      const oldCart = preserveCart ? cart.slice() : [];
+      branchCatalogLoading = true;
+      activePriceSheet = '';
+      allProducts = [];
+      cart = [];
+      renderAll();
+
+      if (!expectedSheet) {
+        document.getElementById('productList').innerHTML =
+          '<div style="padding:25px;color:var(--muted);">Choose a branch above to load prices.</div>';
+        branchCatalogLoading = false;
+        updateCount();
+        return;
+      }
+      document.getElementById('productList').innerHTML =
+        '<div class="loading-screen"><div class="spinner"></div><span>Loading ' + expectedSheet + ' prices…</span></div>';
+      try {
+        const response = await apiCall('getBranchProducts', { branch });
+        if (token !== branchCatalogToken) return;
+        if (response.priceSheet !== expectedSheet) {
+          throw new Error('Expected ' + expectedSheet + ' but API returned ' +
+            (response.priceSheet || 'no sheet identifier') + '. Update Code.gs first.');
+        }
+        if (!Array.isArray(response.data) || !response.data.length) {
+          throw new Error('No products found in ' + expectedSheet + '.');
+        }
+        const catalog = response.data.map(normalizeProduct).filter(p => p.name);
+        if (!catalog.length) throw new Error('The ' + expectedSheet + ' sheet has no named products.');
+        allProducts = catalog;
+        activePriceSheet = expectedSheet;
+
+        let dropped = 0;
+        if (preserveCart && oldCart.length) {
+          oldCart.forEach(item => {
+            const match = findSafeCatalogMatch(item.product, catalog, previousSheet === expectedSheet);
+            if (!match) { dropped++; return; }
+            const key = productKeyOf(match);
+            const existing = cart.find(entry => productKeyOf(entry.product) === key);
+            if (existing) existing.qty += item.qty;
+            else cart.push({ product: cloneProductForCart(match), qty: item.qty });
+          });
+        }
+        branchCatalogLoading = false;
+        renderAll();
+        if (dropped) showAutoLoadBanner(dropped + ' item(s) were removed because they could not be matched safely in ' + expectedSheet + '.', 'warn');
+        console.log('[PRICE SOURCE]', branch, expectedSheet, 'products:', catalog.length);
+      } catch (err) {
+        if (token !== branchCatalogToken) return;
+        branchCatalogLoading = false;
+        activePriceSheet = '';
+        allProducts = [];
+        cart = [];
+        renderAll();
+        document.getElementById('productList').innerHTML =
+          '<div style="padding:25px;color:#fb923c;">Unable to load branch prices: ' + html(err.message || String(err)) + '</div>';
+        showAutoLoadBanner('✗ Cannot load ' + expectedSheet + ' prices: ' + html(err.message || String(err)), 'error');
+        throw err;
+      }
+    }
+
     function setManualBranch(branchName) {
-      manualBranch = String(branchName || '').trim();
+      const nextBranch = String(branchName || '').trim();
+      const oldBranch = manualBranch;
+      manualBranch = nextBranch;
       if (manualBranch) localStorage.setItem('priceTagManualBranch', manualBranch);
       else localStorage.removeItem('priceTagManualBranch');
       setGeneratorTitle(manualBranch);
+      if (nextBranch === oldBranch && activePriceSheet === getPriceSheetForBranch(nextBranch)) return Promise.resolve();
+      return loadBranchCatalog(nextBranch, Boolean(oldBranch && nextBranch))
+        .catch(err => console.error('[PRICES] Branch selection failed:', err));
     }
 
     function normalizeProduct(p, index) {
@@ -5121,19 +5235,36 @@
     function findBestProductMatch(requestItem) {
       if (!requestItem) return null;
 
-      if (requestItem.productKey) {
-        const byKey = allProducts.find(product => productKeyOf(product) === requestItem.productKey);
-        if (byKey) return byKey;
-      }
-
-      if (requestItem.rowNumber) {
-        const byRow = allProducts.find(product => String(product.rowNumber || '') === String(requestItem.rowNumber));
-        if (byRow) return byRow;
-      }
-
       const requestClean = cleanName(requestItem.name);
       const requestPrice = normalizePriceText(requestItem.price);
       const requestWeight = normalizeWeightText(requestItem.netWeight);
+      // A row number from another sheet might refer to a DIFFERENT product.
+      // Only trust keys/rows when the name and (if present) size agree.
+      function agrees(product) {
+        return product && (!requestClean || cleanName(product.name) === requestClean) &&
+          (!requestWeight || normalizeWeightText(product.netWeightEN || product.netWeight) === requestWeight);
+      }
+      if (requestItem.productKey) {
+        const byKey = allProducts.find(product => productKeyOf(product) === requestItem.productKey);
+        if (agrees(byKey)) return byKey;
+      }
+      if (requestItem.rowNumber) {
+        const byRow = allProducts.find(product => String(product.rowNumber || '') === String(requestItem.rowNumber));
+        if (agrees(byRow)) return byRow;
+      }
+      // Prefer exact name + size even when prices differ between branches.
+      if (requestClean && requestWeight) {
+        const namedProducts = allProducts.filter(product => cleanName(product.name) === requestClean);
+        const same = namedProducts.filter(product =>
+          normalizeWeightText(product.netWeightEN || product.netWeight) === requestWeight);
+        if (same.length === 1) return same[0];
+        if (namedProducts.length) return null; // Do not substitute another size's price.
+      }
+      if (requestClean && !requestWeight) {
+        const same = allProducts.filter(product => cleanName(product.name) === requestClean);
+        if (same.length === 1) return same[0];
+        if (same.length > 1) return null; // Ambiguous size; never guess its price.
+      }
 
       if (requestClean && requestPrice) {
         const byNamePriceWeight = allProducts.find(product =>
@@ -6121,10 +6252,11 @@
     function refreshAfterManagementChange(type) {
       const jobs = [loadIntegratedSheetPage(type, false)];
       if (type === 'products') {
-        jobs.push(apiCall('getProducts').then(data => {
-          allProducts = (data || []).map(normalizeProduct).filter(product => product.name);
-          renderProductList();
-        }));
+        const currentBranch = isManualGeneratorOpen ? manualBranch : document.getElementById('rbBranch').textContent;
+        if (currentBranch && getPriceSheetForBranch(currentBranch) === 'Products') {
+          jobs.push(loadBranchCatalog(currentBranch, true));
+        }
+        // Management uses the legacy Products API independently of branch-priced tags.
       }
       if (type === 'branches') {
         localStorage.removeItem('priceTagManualBranch');
@@ -6217,35 +6349,25 @@
       initPendingNotifications();
       initIntegratedNavigation();
 
-      apiCall('getProducts')
-        .then(data => {
-          allProducts = (data || []).map(normalizeProduct).filter(p => p.name);
-          renderProductList();
-          hideLoadingOverlay();
-          console.log('[BOOT] Products loaded:', allProducts.length, 'products');
-          console.log('[BOOT] PRELOAD_ROW:', PRELOAD_ROW);
-
-          if (PRELOAD_ROW && PRELOAD_ROW > 1) {
-            return apiCall('getRequestData', { row: PRELOAD_ROW })
-              .then(req => {
-                preloadRequest(req);
-                hideLoadingOverlay();
-              })
-              .catch(err => {
-                console.error('[ERROR] Failed to load request:', err);
-                showAutoLoadBanner('✗ Failed to load request row ' + PRELOAD_ROW + ': ' + (err.message || err), 'error');
-                hideLoadingOverlay();
-              });
-          }
-
-          hideLoadingOverlay();
-        })
-        .catch(err => {
-          document.getElementById('productList').innerHTML =
-            `<div style="text-align:center;padding:32px;color:var(--muted);font-size:12px;">⚠ Failed to load: ${err.message}</div>`;
-          showAutoLoadBanner('✗ Failed to load product database: ' + (err.message || err), 'error');
-          hideLoadingOverlay();
-        });
+      // Request mode: identify branch FIRST, then load the matching sheet, then add tags.
+      // Manual mode: initManualBranchSelector loads the saved branch, or waits for selection.
+      if (PRELOAD_ROW && PRELOAD_ROW > 1) {
+        apiCall('getRequestData', { row: PRELOAD_ROW })
+          .then(async req => {
+            if (!req || !req.branch) throw new Error('This request has no branch.');
+            await loadBranchCatalog(req.branch, false);
+            preloadRequest(req);
+          })
+          .catch(err => {
+            console.error('[BOOT] Request could not be loaded:', err);
+            showAutoLoadBanner('✗ Request loading failed: ' + html(err.message || String(err)), 'error');
+          })
+          .finally(hideLoadingOverlay);
+      } else {
+        document.getElementById('productList').innerHTML =
+          '<div style="padding:25px;color:var(--muted);">Choose a branch above to load prices.</div>';
+        hideLoadingOverlay();
+      }
     });
 
     // ── Pre-load items from a request row ─────────────────
@@ -6448,7 +6570,7 @@
       const tags = cart.reduce((s, c) => s + c.qty, 0);
       document.getElementById('selCount').textContent =
         `${cart.length} item${cart.length !== 1 ? 's' : ''} · ${tags} tag${tags !== 1 ? 's' : ''}`;
-      document.getElementById('pdfBtn').disabled = cart.length === 0;
+      document.getElementById('pdfBtn').disabled = cart.length === 0 || !activePriceSheet || branchCatalogLoading;
     }
 
     // ── Table ─────────────────────────────────────────────
