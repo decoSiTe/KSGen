@@ -6940,9 +6940,25 @@
     }
 
     function formatPortions(p) {
-      const en = normalizePortionText(p.portionsEN || p.portions || '');
-      const ar = normalizePortionText(p.portionsAR || p.netWeightAR || '');
-      if (en && ar) return `${html(en)}<span class="portion-separator">|</span><span dir="rtl">${html(ar)}</span>`;
+      // In older KPRF sheet layouts, Net WeightAR stores text like "4-6 Portions".
+      // That is the English portions field, NOT a second Arabic portions value.
+      const fallbackEN = /\b(?:portions?|servings?)\b/i.test(String(p.netWeightAR || ''))
+        ? p.netWeightAR : '';
+      const en = normalizePortionText(p.portionsEN || p.portions || fallbackEN);
+      const ar = normalizePortionText(p.portionsAR || '');
+
+      // Avoid displaying "4-6 Portions | Portions 4-6" if an imported
+      // record repeats the same English value in both portions fields.
+      const comparable = value => String(value || '')
+        .toLowerCase()
+        .replace(/\b(?:portions?|servings?)\b/g, '')
+        .replace(/[–—]/g, '-')
+        .replace(/\s+/g, '')
+        .trim();
+      const sameEnglishPortions = en && ar &&
+        !/[\u0600-\u06FF]/.test(ar) && comparable(en) === comparable(ar);
+
+      if (en && ar && !sameEnglishPortions) return `${html(en)}<span class="portion-separator">|</span><span dir="rtl">${html(ar)}</span>`;
       if (en) return html(en);
       if (ar) return `<span dir="rtl">${html(ar)}</span>`;
       return '';
